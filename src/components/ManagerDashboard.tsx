@@ -19,12 +19,90 @@ const ManagerDashboard = () => {
   const managerName = localStorage.getItem('managerName') || 'Sarah Johnson'; // Default manager name
   const recruitmentLink = `${window.location.origin}/volunteer-signup?ref=${managerId}`;
 
+  // Mock interested volunteers data
+  const mockInterestedVolunteers = [
+    {
+      id: 'vol-001',
+      volunteerName: 'Emily Rodriguez',
+      volunteerEmail: 'emily.rodriguez@email.com',
+      volunteerPhone: '+1 (555) 123-4567',
+      volunteerLocation: 'Los Angeles, CA 90210',
+      availableShifts: ['Morning', 'Evening'],
+      campaignName: 'Voter Registration Drive',
+      volunteerSkills: 'Public Speaking, Community Outreach, Bilingual',
+      appliedDate: '2024-06-04T10:30:00.000Z'
+    },
+    {
+      id: 'vol-002',
+      volunteerName: 'Michael Chen',
+      volunteerEmail: 'michael.chen@email.com',
+      volunteerPhone: '+1 (555) 234-5678',
+      volunteerLocation: 'San Francisco, CA 94102',
+      availableShifts: ['Afternoon'],
+      campaignName: 'Education Reform Campaign',
+      volunteerSkills: 'Data Analysis, Research, Social Media',
+      appliedDate: '2024-06-03T14:15:00.000Z'
+    },
+    {
+      id: 'vol-003',
+      volunteerName: 'Sarah Johnson',
+      volunteerEmail: 'sarah.johnson@email.com',
+      volunteerPhone: '+1 (555) 345-6789',
+      volunteerLocation: 'Sacramento, CA 95814',
+      availableShifts: ['Morning', 'Afternoon'],
+      campaignName: 'Environmental Protection Initiative',
+      volunteerSkills: 'Event Planning, Leadership, Photography',
+      appliedDate: '2024-06-02T09:45:00.000Z'
+    },
+    {
+      id: 'vol-004',
+      volunteerName: 'David Kim',
+      volunteerEmail: 'david.kim@email.com',
+      volunteerPhone: '+1 (555) 456-7890',
+      volunteerLocation: 'San Diego, CA 92101',
+      availableShifts: ['Evening'],
+      campaignName: 'Healthcare Access Campaign',
+      volunteerSkills: 'Medical Background, Translation, Community Relations',
+      appliedDate: '2024-06-01T16:20:00.000Z'
+    },
+    {
+      id: 'vol-005',
+      volunteerName: 'Lisa Thompson',
+      volunteerEmail: 'lisa.thompson@email.com',
+      volunteerPhone: '+1 (555) 567-8901',
+      volunteerLocation: 'Oakland, CA 94607',
+      availableShifts: ['Morning'],
+      campaignName: 'Youth Engagement Program',
+      volunteerSkills: 'Teaching, Mentoring, Youth Development',
+      appliedDate: '2024-05-31T11:00:00.000Z'
+    },
+    {
+      id: 'vol-006',
+      volunteerName: 'James Wilson',
+      volunteerEmail: 'james.wilson@email.com',
+      volunteerPhone: '+1 (555) 678-9012',
+      volunteerLocation: 'Fresno, CA 93721',
+      availableShifts: ['Afternoon', 'Evening'],
+      campaignName: 'Economic Justice Campaign',
+      volunteerSkills: 'Finance, Legal Research, Public Policy',
+      appliedDate: '2024-05-30T13:30:00.000Z'
+    }
+  ];
+
   useEffect(() => {
     // Load interested volunteers for this specific manager
     const loadInterestedVolunteers = () => {
       const managerKey = `interestedVolunteers_${managerName}`;
       const volunteers = JSON.parse(localStorage.getItem(managerKey) || '[]');
-      setInterestedVolunteers(volunteers);
+      
+      // If no real volunteers, use mock data
+      if (volunteers.length === 0) {
+        setInterestedVolunteers(mockInterestedVolunteers);
+        // Optionally store mock data for persistence
+        localStorage.setItem(managerKey, JSON.stringify(mockInterestedVolunteers));
+      } else {
+        setInterestedVolunteers(volunteers);
+      }
     };
 
     loadInterestedVolunteers();
@@ -37,7 +115,7 @@ const ManagerDashboard = () => {
   // Mock joined volunteers data
   const joinedVolunteers = [
     {
-      id: '3',
+      id: 'vol-007',
       volunteerName: 'Mike Johnson',
       volunteerEmail: 'mike@example.com',
       volunteerPhone: '+1234567892',
@@ -46,6 +124,17 @@ const ManagerDashboard = () => {
       campaignName: 'Education Drive',
       volunteerSkills: 'Teaching, Mentoring',
       appliedDate: '2024-06-01T10:00:00.000Z'
+    },
+    {
+      id: 'vol-008',
+      volunteerName: 'Anna Garcia',
+      volunteerEmail: 'anna.garcia@email.com',
+      volunteerPhone: '+1 (555) 789-0123',
+      volunteerLocation: 'Berkeley, CA 94720',
+      availableShifts: ['Evening'],
+      campaignName: 'Climate Action Campaign',
+      volunteerSkills: 'Environmental Science, Public Speaking',
+      appliedDate: '2024-05-28T15:45:00.000Z'
     }
   ];
 
@@ -216,33 +305,6 @@ const ManagerDashboard = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => handleEmail(volunteer.volunteerEmail)}
-                  variant="outline"
-                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                >
-                  <Mail className="w-3 h-3 mr-1" />
-                  Email
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => handleCall(volunteer.volunteerPhone)}
-                  variant="outline"
-                  className="text-green-600 border-green-200 hover:bg-green-50"
-                >
-                  <Phone className="w-3 h-3 mr-1" />
-                  Call
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => handleText(volunteer.volunteerPhone)}
-                  variant="outline"
-                  className="text-purple-600 border-purple-200 hover:bg-purple-50"
-                >
-                  <MessageSquare className="w-3 h-3 mr-1" />
-                  WhatsApp
-                </Button>
                 <Button
                   size="sm"
                   onClick={() => handleApprove(volunteer.id)}
@@ -454,24 +516,6 @@ const ManagerDashboard = () => {
                 <InterestedVolunteerCard key={volunteer.id} volunteer={volunteer} />
               ))}
             </div>
-
-            {interestedVolunteers.length === 0 && (
-              <Card className="bg-white/80 backdrop-blur-sm">
-                <CardContent className="text-center py-16">
-                  <div className="text-6xl mb-4">👥</div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    No interested volunteers yet
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    Share your recruitment link to start attracting volunteers!
-                  </p>
-                  <Button onClick={copyRecruitmentLink} className="bg-blue-600 hover:bg-blue-700">
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy Recruitment Link
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
           </TabsContent>
 
           <TabsContent value="joined" className="space-y-6">
@@ -491,24 +535,6 @@ const ManagerDashboard = () => {
                 <JoinedVolunteerCard key={volunteer.id} volunteer={volunteer} />
               ))}
             </div>
-
-            {joinedVolunteers.length === 0 && (
-              <Card className="bg-white/80 backdrop-blur-sm">
-                <CardContent className="text-center py-16">
-                  <div className="text-6xl mb-4">🎉</div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    No joined volunteers yet
-                  </h3>
-                  <p className="text-gray-600 mb-6">
-                    Approve interested volunteers to see them here.
-                  </p>
-                  <Button onClick={copyRecruitmentLink} className="bg-blue-600 hover:bg-blue-700">
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy Recruitment Link
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
           </TabsContent>
 
           <TabsContent value="past" className="space-y-6">
