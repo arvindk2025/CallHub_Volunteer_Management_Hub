@@ -1,12 +1,13 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy, History } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import Navigation from './shared/Navigation';
+import PastVolunteers from './PastVolunteers';
 
 const ManagerDashboard = () => {
   const [activeTab, setActiveTab] = useState('interested');
@@ -171,124 +172,150 @@ const ManagerDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
-      <Navigation title="Campaign Manager Dashboard">
-        <div className="flex items-center space-x-4">
-          <Button
-            variant={activeTab === 'interested' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('interested')}
-            className="flex items-center space-x-2"
-          >
-            <Users className="w-4 h-4" />
-            <span>Interested Volunteers</span>
-          </Button>
-          <Button
-            variant={activeTab === 'joined' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('joined')}
-            className="flex items-center space-x-2"
-          >
-            <UserCheck className="w-4 h-4" />
-            <span>Joined Volunteers</span>
-          </Button>
-        </div>
-      </Navigation>
+      <Navigation title="Campaign Manager Dashboard" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Recruitment Link Card */}
-        <Card className="mb-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
-          <CardHeader>
-            <CardTitle className="text-white">🚀 Volunteer Recruitment Center</CardTitle>
-            <CardDescription className="text-blue-100">
-              Share this unique link to recruit volunteers for your campaigns and watch your team grow!
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-3">
-              <Input
-                value={recruitmentLink}
-                readOnly
-                className="flex-1 bg-white/10 border-white/20 text-white placeholder-white/60"
-              />
-              <Button onClick={copyRecruitmentLink} variant="secondary">
-                <Copy className="w-4 h-4 mr-2" />
-                Copy Link
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="interested" className="flex items-center space-x-2">
+              <Users className="w-4 h-4" />
+              <span>Interested</span>
+            </TabsTrigger>
+            <TabsTrigger value="joined" className="flex items-center space-x-2">
+              <UserCheck className="w-4 h-4" />
+              <span>Joined</span>
+            </TabsTrigger>
+            <TabsTrigger value="past" className="flex items-center space-x-2">
+              <History className="w-4 h-4" />
+              <span>Past Volunteers</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="interested" className="space-y-6">
+            {/* Recruitment Link Card */}
+            <Card className="mb-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
+              <CardHeader>
+                <CardTitle className="text-white">🚀 Volunteer Recruitment Center</CardTitle>
+                <CardDescription className="text-blue-100">
+                  Share this unique link to recruit volunteers for your campaigns and watch your team grow!
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center space-x-3">
+                  <Input
+                    value={recruitmentLink}
+                    readOnly
+                    className="flex-1 bg-white/10 border-white/20 text-white placeholder-white/60"
+                  />
+                  <Button onClick={copyRecruitmentLink} variant="secondary">
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy Link
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card className="bg-white/80 backdrop-blur-sm">
+                <CardContent className="p-6 text-center">
+                  <div className="text-3xl font-bold text-blue-600 mb-2">
+                    {interestedVolunteers.length}
+                  </div>
+                  <div className="text-gray-600">Interested Volunteers</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/80 backdrop-blur-sm">
+                <CardContent className="p-6 text-center">
+                  <div className="text-3xl font-bold text-green-600 mb-2">
+                    {Math.round((joinedVolunteers.length / (interestedVolunteers.length + joinedVolunteers.length)) * 100) || 0}%
+                  </div>
+                  <div className="text-gray-600">Conversion Rate</div>
+                </CardContent>
+              </Card>
+              <Card className="bg-white/80 backdrop-blur-sm">
+                <CardContent className="p-6 text-center">
+                  <div className="text-3xl font-bold text-purple-600 mb-2">
+                    {interestedVolunteers.length + joinedVolunteers.length}
+                  </div>
+                  <div className="text-gray-600">Total Volunteers</div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Controls */}
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">👋 Interested Volunteers</h2>
+              <Button onClick={handleExportContacts} className="bg-blue-600 hover:bg-blue-700">
+                <Download className="w-4 h-4 mr-2" />
+                Export Contacts
               </Button>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-white/80 backdrop-blur-sm">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-blue-600 mb-2">
-                {activeTab === 'interested' ? interestedVolunteers.length : joinedVolunteers.length}
-              </div>
-              <div className="text-gray-600">
-                {activeTab === 'interested' ? 'Interested' : 'Joined'} Volunteers
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white/80 backdrop-blur-sm">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-green-600 mb-2">
-                {Math.round((joinedVolunteers.length / (interestedVolunteers.length + joinedVolunteers.length)) * 100) || 0}%
-              </div>
-              <div className="text-gray-600">Conversion Rate</div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white/80 backdrop-blur-sm">
-            <CardContent className="p-6 text-center">
-              <div className="text-3xl font-bold text-purple-600 mb-2">
-                {interestedVolunteers.length + joinedVolunteers.length}
-              </div>
-              <div className="text-gray-600">Total Volunteers</div>
-            </CardContent>
-          </Card>
-        </div>
+            {/* Volunteers List */}
+            <div className="space-y-4">
+              {interestedVolunteers.map(volunteer => (
+                <VolunteerCard key={volunteer.id} volunteer={volunteer} />
+              ))}
+            </div>
 
-        {/* Controls */}
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-gray-900">
-            {activeTab === 'interested' ? '👋 Interested Volunteers' : '✅ Joined Volunteers'}
-          </h2>
-          <Button onClick={handleExportContacts} className="bg-blue-600 hover:bg-blue-700">
-            <Download className="w-4 h-4 mr-2" />
-            Export Contacts
-          </Button>
-        </div>
+            {interestedVolunteers.length === 0 && (
+              <Card className="bg-white/80 backdrop-blur-sm">
+                <CardContent className="text-center py-16">
+                  <div className="text-6xl mb-4">👥</div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No interested volunteers yet
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Share your recruitment link to start attracting volunteers!
+                  </p>
+                  <Button onClick={copyRecruitmentLink} className="bg-blue-600 hover:bg-blue-700">
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy Recruitment Link
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
 
-        {/* Volunteers List */}
-        <div className="space-y-4">
-          {activeTab === 'interested' && interestedVolunteers.map(volunteer => (
-            <VolunteerCard key={volunteer.id} volunteer={volunteer} />
-          ))}
-          {activeTab === 'joined' && joinedVolunteers.map(volunteer => (
-            <VolunteerCard key={volunteer.id} volunteer={volunteer} showActions={false} />
-          ))}
-        </div>
-
-        {((activeTab === 'interested' && interestedVolunteers.length === 0) || 
-          (activeTab === 'joined' && joinedVolunteers.length === 0)) && (
-          <Card className="bg-white/80 backdrop-blur-sm">
-            <CardContent className="text-center py-16">
-              <div className="text-6xl mb-4">
-                {activeTab === 'interested' ? '👥' : '🎉'}
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No {activeTab} volunteers yet
-              </h3>
-              <p className="text-gray-600 mb-6">
-                {activeTab === 'interested' 
-                  ? 'Share your recruitment link to start attracting volunteers!' 
-                  : 'Approve interested volunteers to see them here.'}
-              </p>
-              <Button onClick={copyRecruitmentLink} className="bg-blue-600 hover:bg-blue-700">
-                <Copy className="w-4 h-4 mr-2" />
-                Copy Recruitment Link
+          <TabsContent value="joined" className="space-y-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-3xl font-bold text-gray-900">✅ Joined Volunteers</h2>
+              <Button onClick={handleExportContacts} className="bg-blue-600 hover:bg-blue-700">
+                <Download className="w-4 h-4 mr-2" />
+                Export Contacts
               </Button>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+
+            <div className="space-y-4">
+              {joinedVolunteers.map(volunteer => (
+                <VolunteerCard key={volunteer.id} volunteer={volunteer} showActions={false} />
+              ))}
+            </div>
+
+            {joinedVolunteers.length === 0 && (
+              <Card className="bg-white/80 backdrop-blur-sm">
+                <CardContent className="text-center py-16">
+                  <div className="text-6xl mb-4">🎉</div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No joined volunteers yet
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Approve interested volunteers to see them here.
+                  </p>
+                  <Button onClick={copyRecruitmentLink} className="bg-blue-600 hover:bg-blue-700">
+                    <Copy className="w-4 h-4 mr-2" />
+                    Copy Recruitment Link
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="past" className="space-y-6">
+            <PastVolunteers />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
