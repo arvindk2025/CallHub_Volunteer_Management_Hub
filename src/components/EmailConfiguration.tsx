@@ -5,12 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { Settings, Mail, ExternalLink } from 'lucide-react';
+import { Settings, Mail, ExternalLink, TestTube } from 'lucide-react';
+import { emailService } from '../utils/emailService';
 
 const EmailConfiguration = () => {
   const [serviceId, setServiceId] = useState('');
   const [templateId, setTemplateId] = useState('');
   const [publicKey, setPublicKey] = useState('');
+  const [testEmail, setTestEmail] = useState('');
+  const [isTestingConfig, setIsTestingConfig] = useState(false);
 
   useEffect(() => {
     // Load saved configuration
@@ -34,11 +37,19 @@ const EmailConfiguration = () => {
     
     toast({
       title: "Configuration Saved!",
-      description: "EmailJS credentials have been saved. Emails will now be sent through EmailJS.",
+      description: "EmailJS credentials have been saved. You can now test the configuration.",
     });
   };
 
-  const handleTestEmail = () => {
+  const handleTestConfiguration = async () => {
+    if (!testEmail) {
+      toast({
+        title: "Email Required",
+        description: "Please enter a test email address.",
+      });
+      return;
+    }
+
     if (!serviceId || !templateId || !publicKey) {
       toast({
         title: "Configuration Required",
@@ -47,10 +58,37 @@ const EmailConfiguration = () => {
       return;
     }
 
-    toast({
-      title: "Test Email Feature",
-      description: "Test email functionality by sending an invitation to a volunteer.",
-    });
+    setIsTestingConfig(true);
+
+    try {
+      console.log('🧪 Testing EmailJS configuration...');
+      
+      const result = await emailService.sendEmail({
+        to: testEmail,
+        subject: '🧪 EmailJS Configuration Test - CallHub',
+        body: 'This is a test email to verify your EmailJS configuration is working correctly. If you receive this email, your setup is successful!'
+      });
+
+      if (result.success) {
+        toast({
+          title: "Test Email Sent!",
+          description: `Check ${testEmail} for the test message. If you don't receive it, check your EmailJS configuration.`,
+        });
+      } else {
+        toast({
+          title: "Test Failed",
+          description: "Email test failed. Check the console for detailed error information.",
+        });
+      }
+    } catch (error) {
+      console.error('Test email error:', error);
+      toast({
+        title: "Test Error",
+        description: "Failed to send test email. Check console for details.",
+      });
+    } finally {
+      setIsTestingConfig(false);
+    }
   };
 
   return (
@@ -106,6 +144,29 @@ const EmailConfiguration = () => {
           </div>
         </div>
 
+        {/* Test Email Section */}
+        <div className="border-t pt-4">
+          <h4 className="font-medium text-gray-900 mb-3">🧪 Test Configuration</h4>
+          <div className="flex space-x-3">
+            <div className="flex-1">
+              <Input
+                placeholder="Enter your email to test"
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                type="email"
+              />
+            </div>
+            <Button 
+              onClick={handleTestConfiguration}
+              disabled={!serviceId || !templateId || !publicKey || !testEmail || isTestingConfig}
+              variant="outline"
+            >
+              <TestTube className="w-4 h-4 mr-2" />
+              {isTestingConfig ? 'Testing...' : 'Send Test Email'}
+            </Button>
+          </div>
+        </div>
+
         <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
           <h4 className="font-medium text-blue-900 mb-2">Setup Instructions:</h4>
           <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
@@ -113,6 +174,7 @@ const EmailConfiguration = () => {
             <li>Create an email service (Gmail, Outlook, etc.)</li>
             <li>Create a template with variables: <code>to_email</code>, <code>subject</code>, <code>message</code>, <code>from_name</code></li>
             <li>Copy your Service ID, Template ID, and Public Key here</li>
+            <li>Save configuration and test with your email</li>
           </ol>
         </div>
 
@@ -124,15 +186,6 @@ const EmailConfiguration = () => {
             <Settings className="w-4 h-4 mr-2" />
             Save Configuration
           </Button>
-          
-          <Button 
-            onClick={handleTestEmail}
-            variant="outline"
-            disabled={!serviceId || !templateId || !publicKey}
-          >
-            <Mail className="w-4 h-4 mr-2" />
-            Test Email Setup
-          </Button>
         </div>
 
         {(!serviceId || !templateId || !publicKey) && (
@@ -142,6 +195,12 @@ const EmailConfiguration = () => {
             </p>
           </div>
         )}
+
+        <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+          <p className="text-sm text-gray-700">
+            📋 <strong>Debug Help:</strong> Open browser console (F12) to see detailed email sending logs and any error messages.
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

@@ -19,13 +19,21 @@ class EmailService {
     try {
       const config = this.getConfiguration();
       
+      console.log('=== EMAIL DEBUG INFO ===');
+      console.log('EmailJS Config:', {
+        serviceId: config.serviceId,
+        templateId: config.templateId,
+        publicKey: config.publicKey ? 'SET' : 'NOT SET'
+      });
+      console.log('Email Details:', { to, subject });
+      
       // Check if EmailJS is configured
       if (config.serviceId === 'YOUR_SERVICE_ID' || !config.serviceId || !config.templateId || !config.publicKey) {
-        console.log('EmailJS not configured yet. Email content:');
-        console.log(`To: ${to}`);
-        console.log(`Subject: ${subject}`);
-        console.log(`Body: ${body}`);
-        console.log('\nTo send real emails:');
+        console.warn('❌ EmailJS NOT CONFIGURED - Showing email in console instead');
+        console.log(`📧 TO: ${to}`);
+        console.log(`📧 SUBJECT: ${subject}`);
+        console.log(`📧 BODY: ${body}`);
+        console.log('\n🔧 TO SEND REAL EMAILS:');
         console.log('1. Go to Manager Dashboard > Email Configuration');
         console.log('2. Sign up at https://www.emailjs.com/');
         console.log('3. Create a service and template');
@@ -37,38 +45,92 @@ class EmailService {
         };
       }
 
+      console.log('✅ EmailJS is configured, attempting to send...');
+
       // Initialize EmailJS with your public key
       emailjs.init(config.publicKey);
+
+      // Prepare template parameters
+      const templateParams = {
+        to_email: to,
+        subject: subject,
+        message: body,
+        from_name: 'CallHub Campaign Manager'
+      };
+
+      console.log('📤 Sending email with params:', templateParams);
 
       // Send email using EmailJS
       const response = await emailjs.send(
         config.serviceId,
         config.templateId,
-        {
-          to_email: to,
-          subject: subject,
-          message: body,
-          from_name: 'CallHub Team'
-        }
+        templateParams
       );
 
-      console.log('Email sent successfully via EmailJS:', response);
+      console.log('✅ EMAIL SENT SUCCESSFULLY via EmailJS:', response);
+      console.log('Response status:', response.status);
+      console.log('Response text:', response.text);
+      
       return {
         success: true,
-        message: 'Email sent successfully via EmailJS'
+        message: 'Email sent successfully via EmailJS',
+        response: response
       };
     } catch (error) {
-      console.error('Error sending email via EmailJS:', error);
+      console.error('❌ ERROR SENDING EMAIL via EmailJS:', error);
+      console.error('Error details:', error);
+      
+      // More detailed error logging
+      if (error.text) {
+        console.error('EmailJS Error Text:', error.text);
+      }
+      if (error.status) {
+        console.error('EmailJS Error Status:', error.status);
+      }
       
       // Fallback to console logging if EmailJS fails
-      console.log('Fallback - Email content:');
-      console.log(`To: ${to}`);
-      console.log(`Subject: ${subject}`);
-      console.log(`Body: ${body}`);
+      console.log('🔄 FALLBACK - Email content logged to console:');
+      console.log(`📧 TO: ${to}`);
+      console.log(`📧 SUBJECT: ${subject}`);
+      console.log(`📧 BODY: ${body}`);
       
       return {
         success: false,
-        message: 'Failed to send email via EmailJS, logged to console instead'
+        message: 'Failed to send email via EmailJS, logged to console instead',
+        error: error
+      };
+    }
+  }
+
+  // Test email configuration
+  async testConfiguration() {
+    const config = this.getConfiguration();
+    
+    if (config.serviceId === 'YOUR_SERVICE_ID' || !config.serviceId || !config.templateId || !config.publicKey) {
+      return {
+        configured: false,
+        message: 'EmailJS not configured'
+      };
+    }
+
+    try {
+      // Try to send a test email
+      const testResult = await this.sendEmail({
+        to: 'test@example.com',
+        subject: 'Test Email Configuration',
+        body: 'This is a test email to verify EmailJS configuration.'
+      });
+
+      return {
+        configured: true,
+        message: 'Configuration appears valid',
+        testResult
+      };
+    } catch (error) {
+      return {
+        configured: true,
+        message: 'Configuration set but may have errors',
+        error: error
       };
     }
   }
@@ -78,14 +140,7 @@ export const emailService = new EmailService();
 
 // Email reminder service for volunteers
 export const scheduleMonthlyReminder = (email: string, name: string) => {
-  // This would typically connect to a backend service
-  // For demo purposes, we'll simulate with console logging
   console.log(`Monthly reminder scheduled for ${name} (${email})`);
-  
-  // In a real application, this would:
-  // 1. Set up a recurring job/cron task
-  // 2. Send email via service like SendGrid, AWS SES, etc.
-  // 3. Track reminder history
   
   return {
     success: true,
@@ -94,7 +149,6 @@ export const scheduleMonthlyReminder = (email: string, name: string) => {
 };
 
 export const sendCampaignReminder = (email: string, campaignName: string, campaignDate: string) => {
-  // This would send a reminder 2 hours before campaign starts
   console.log(`Campaign reminder sent to ${email} for ${campaignName} on ${campaignDate}`);
   
   return {
