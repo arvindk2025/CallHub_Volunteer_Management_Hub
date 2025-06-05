@@ -11,42 +11,39 @@ import ManagerDashboard from "./components/ManagerDashboard";
 import VolunteerDashboard from "./components/VolunteerDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import NotFound from "./pages/NotFound";
-import { ThemeProvider } from "./components/ThemeProvider";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/volunteer-signup" element={<VolunteerSignup />} />
-            <Route 
-              path="/manager-dashboard" 
-              element={
-                <ProtectedRoute requiredRole="manager">
-                  <ManagerDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/volunteer-dashboard" 
-              element={
-                <ProtectedRoute requiredRole="volunteer">
-                  <VolunteerDashboard />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </ThemeProvider>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/volunteer-signup" element={<VolunteerSignup />} />
+          <Route 
+            path="/manager-dashboard" 
+            element={
+              <ProtectedRoute requiredRole="manager">
+                <ManagerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/volunteer-dashboard" 
+            element={
+              <ProtectedRoute requiredRole="volunteer">
+                <VolunteerDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </TooltipProvider>
   </QueryClientProvider>
 );
 
