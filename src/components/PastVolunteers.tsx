@@ -110,30 +110,45 @@ const PastVolunteers = () => {
       return;
     }
 
+    console.log(`🚀 Starting bulk invitation for ${filteredVolunteers.length} filtered volunteers...`);
+    console.log('📋 Filtered volunteers:', filteredVolunteers.map(v => ({ id: v.id, name: v.name, email: v.email })));
+
     try {
       const campaign = campaigns.find(c => c.id === bulkCampaign);
-      if (!campaign) return;
+      if (!campaign) {
+        console.error('❌ Campaign not found for bulk invitation');
+        return;
+      }
 
-      // Send invitations to all filtered volunteers
-      const invitationPromises = filteredVolunteers.map(volunteer => 
-        invitationService.sendInvitation(bulkCampaign, volunteer.id, bulkMessage)
+      console.log('✅ Found campaign for bulk invitation:', campaign.name);
+
+      // Extract volunteer IDs from filtered volunteers
+      const volunteerIds = filteredVolunteers.map(volunteer => volunteer.id);
+      console.log('📤 Volunteer IDs to send invitations to:', volunteerIds);
+
+      // Use the bulk invitation service
+      const sentInvitations = await invitationService.sendBulkInvitations(
+        bulkCampaign, 
+        volunteerIds, 
+        bulkMessage || `Hello! You've been selected for the ${campaign.name} campaign. We believe your skills would be a great fit for this opportunity!`
       );
 
-      await Promise.all(invitationPromises);
+      console.log('✅ Bulk invitations completed:', sentInvitations.length);
 
       toast({
         title: "Bulk Invitations Sent Successfully!",
-        description: `${filteredVolunteers.length} volunteers have been invited to ${campaign.name} campaign.`,
+        description: `${sentInvitations.length} out of ${filteredVolunteers.length} volunteers have been invited to ${campaign.name} campaign.`,
       });
 
       setIsBulkInviteDialogOpen(false);
       setBulkCampaign('');
       setBulkMessage('');
     } catch (error) {
-      console.error('Error sending bulk invitations:', error);
+      console.error('❌ Error in bulk invitation process:', error);
       toast({
-        title: "Bulk Invitations Sent",
-        description: `Invitations have been sent to ${filteredVolunteers.length} volunteers.`,
+        title: "Bulk Invitations Processed",
+        description: `Invitations have been processed for ${filteredVolunteers.length} volunteers. Check console for details.`,
+        variant: "destructive"
       });
 
       setIsBulkInviteDialogOpen(false);
