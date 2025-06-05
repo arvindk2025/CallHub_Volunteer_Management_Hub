@@ -1,20 +1,32 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from "@/hooks/use-toast";
 
 const Login = () => {
+  const [searchParams] = useSearchParams();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
     role: 'volunteer'
   });
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if coming from email invitation link
+    const fromInvitation = searchParams.get('from') === 'invitation';
+    if (fromInvitation) {
+      setFormData(prev => ({ ...prev, role: 'volunteer' }));
+      toast({
+        title: "Welcome!",
+        description: "Please sign in to view your campaign invitation.",
+      });
+    }
+  }, [searchParams]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,6 +42,9 @@ const Login = () => {
       localStorage.setItem('managerId', managerId);
       navigate('/manager-dashboard');
     } else {
+      // Generate volunteer ID for invitation tracking
+      const volunteerId = Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('volunteerId', volunteerId);
       navigate('/volunteer-dashboard');
     }
     
