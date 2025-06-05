@@ -19,67 +19,15 @@ const VolunteerDashboard = () => {
   const volunteerId = localStorage.getItem('volunteerId') || 'vol-001';
   const volunteerName = localStorage.getItem('volunteerName') || 'Volunteer User';
 
-  // Mock invitations data
-  const mockInvitations = [
-    {
-      id: 'inv-001',
-      campaignId: 'camp-001',
-      volunteerId: volunteerId,
-      invitedDate: '2024-06-04T10:00:00.000Z',
-      status: 'pending' as const,
-      message: 'We think your communication skills would be perfect for this voter outreach campaign!'
-    },
-    {
-      id: 'inv-002',
-      campaignId: 'camp-002',
-      volunteerId: volunteerId,
-      invitedDate: '2024-06-03T14:30:00.000Z',
-      status: 'pending' as const,
-      message: 'Your experience in community organizing makes you an ideal candidate for this campaign.'
-    },
-    {
-      id: 'inv-003',
-      campaignId: 'camp-003',
-      volunteerId: volunteerId,
-      invitedDate: '2024-06-02T09:15:00.000Z',
-      status: 'accepted' as const,
-      message: 'Join us in making a difference in education policy!'
-    },
-    {
-      id: 'inv-004',
-      campaignId: 'camp-004',
-      volunteerId: volunteerId,
-      invitedDate: '2024-06-01T16:45:00.000Z',
-      status: 'pending' as const,
-      message: 'We need passionate volunteers like you for our environmental initiative.'
-    },
-    {
-      id: 'inv-005',
-      campaignId: 'camp-005',
-      volunteerId: volunteerId,
-      invitedDate: '2024-05-31T11:20:00.000Z',
-      status: 'declined' as const,
-      message: 'Your healthcare advocacy background would be valuable to our campaign.'
-    }
-  ];
-
   useEffect(() => {
     // Load invitations for the current volunteer
     const volunteerInvitations = invitationService.getVolunteerInvitations(volunteerId);
-    
-    // If no real invitations, use mock data
-    if (volunteerInvitations.length === 0) {
-      setInvitations(mockInvitations);
-    } else {
-      setInvitations(volunteerInvitations);
-    }
+    setInvitations(volunteerInvitations);
     
     // Refresh invitations every 5 seconds to catch new ones
     const interval = setInterval(() => {
       const updatedInvitations = invitationService.getVolunteerInvitations(volunteerId);
-      if (updatedInvitations.length > 0) {
-        setInvitations(updatedInvitations);
-      }
+      setInvitations(updatedInvitations);
     }, 5000);
 
     return () => clearInterval(interval);
@@ -430,6 +378,27 @@ const VolunteerDashboard = () => {
                 <InvitationCard key={invitation.id} invitation={invitation} />
               ))}
             </div>
+
+            {invitations.length === 0 && (
+              <Card className="bg-white/80 backdrop-blur-sm">
+                <CardContent className="text-center py-16">
+                  <div className="text-6xl mb-4">📬</div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    No invitations yet
+                  </h3>
+                  <p className="text-gray-600 mb-6">
+                    Campaign managers will send you invitations for campaigns that match your skills!
+                  </p>
+                  <Button 
+                    onClick={() => setActiveTab('available')}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Browse Available Campaigns
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
 
           <TabsContent value="joined" className="space-y-6">
