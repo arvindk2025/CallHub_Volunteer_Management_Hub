@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, MapPin, User, Heart, CheckCircle, Bell } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, Heart, CheckCircle } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
+import Navigation from './shared/Navigation';
 
 const VolunteerDashboard = () => {
   const [activeTab, setActiveTab] = useState('available');
@@ -14,11 +14,12 @@ const VolunteerDashboard = () => {
     {
       id: '1',
       name: 'Community Cleanup Drive',
-      managerName: 'Sarah Johnson',
-      scheduledDate: '2024-01-15',
-      scheduledTime: '09:00 AM',
+      manager: 'Sarah Johnson',
+      date: '2024-01-15',
+      time: '09:00 AM',
       location: 'Central Park',
       description: 'Help clean up our community park and make it beautiful for everyone.',
+      category: 'Community Service',
       startsIn: '2 days',
       volunteersNeeded: 20,
       currentVolunteers: 8
@@ -26,11 +27,12 @@ const VolunteerDashboard = () => {
     {
       id: '2',
       name: 'Food Bank Distribution',
-      managerName: 'Mike Davis',
-      scheduledDate: '2024-01-18',
-      scheduledTime: '02:00 PM',
+      manager: 'Mike Davis',
+      date: '2024-01-18',
+      time: '02:00 PM',
       location: 'Community Center',
       description: 'Assist in distributing food packages to families in need.',
+      category: 'Food Assistance',
       startsIn: '5 days',
       volunteersNeeded: 15,
       currentVolunteers: 12
@@ -38,11 +40,12 @@ const VolunteerDashboard = () => {
     {
       id: '3',
       name: 'Youth Education Workshop',
-      managerName: 'Emily Chen',
-      scheduledDate: '2024-01-20',
-      scheduledTime: '10:00 AM',
+      manager: 'Emily Chen',
+      date: '2024-01-20',
+      time: '10:00 AM',
       location: 'Local Library',
       description: 'Help teach basic computer skills to underprivileged youth.',
+      category: 'Education',
       startsIn: '1 week',
       volunteersNeeded: 10,
       currentVolunteers: 5
@@ -53,22 +56,23 @@ const VolunteerDashboard = () => {
     {
       id: '4',
       name: 'Environmental Awareness Campaign',
-      managerName: 'John Smith',
-      scheduledDate: '2024-01-12',
-      scheduledTime: '11:00 AM',
+      manager: 'John Smith',
+      date: '2024-01-12',
+      time: '11:00 AM',
       location: 'City Mall',
       description: 'Spread awareness about environmental conservation.',
+      category: 'Environmental',
       startsIn: 'Tomorrow',
       volunteersNeeded: 25,
       currentVolunteers: 25
     }
   ];
 
-  const handleShowInterest = (campaignId: string, campaignName: string) => {
+  const handleShowInterest = (campaignId: string) => {
     // Mock API call to show interest
     toast({
       title: "Interest Registered",
-      description: `You've shown interest in "${campaignName}". The campaign manager will review your application.`,
+      description: `You've shown interest in the campaign.`,
     });
   };
 
@@ -85,133 +89,139 @@ const VolunteerDashboard = () => {
   };
 
   const CampaignCard = ({ campaign, isJoined = false }: { campaign: any, isJoined?: boolean }) => (
-    <Card className="mb-4 hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex justify-between items-start">
-          <div>
-            <CardTitle className="text-xl">{campaign.name}</CardTitle>
-            <CardDescription className="flex items-center mt-1">
-              <User className="w-4 h-4 mr-1" />
-              Manager: {campaign.managerName}
-            </CardDescription>
-          </div>
-          <div className="text-right">
-            <Badge variant={isJoined ? "default" : "secondary"} className="mb-2">
-              {isJoined ? 'Joined' : 'Available'}
-            </Badge>
-            <div className="flex items-center text-sm text-orange-600 font-semibold">
-              <Bell className="w-4 h-4 mr-1" />
-              Starts in {campaign.startsIn}
+    <Card className="mb-4 hover:shadow-lg transition-all duration-300 hover:scale-105">
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <div className="flex items-center space-x-3 mb-3">
+              <h3 className="font-bold text-xl text-gray-900">{campaign.name}</h3>
+              <Badge variant="secondary" className="text-xs">
+                {campaign.category}
+              </Badge>
             </div>
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <p className="text-gray-600 mb-4">{campaign.description}</p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div className="flex items-center text-sm">
-            <Calendar className="w-4 h-4 mr-2 text-blue-500" />
-            <span>{new Date(campaign.scheduledDate).toLocaleDateString()}</span>
-          </div>
-          <div className="flex items-center text-sm">
-            <Clock className="w-4 h-4 mr-2 text-green-500" />
-            <span>{campaign.scheduledTime}</span>
-          </div>
-          <div className="flex items-center text-sm">
-            <MapPin className="w-4 h-4 mr-2 text-red-500" />
-            <span>{campaign.location}</span>
-          </div>
-          <div className="flex items-center text-sm">
-            <User className="w-4 h-4 mr-2 text-purple-500" />
-            <span>{campaign.currentVolunteers}/{campaign.volunteersNeeded} volunteers</span>
-          </div>
-        </div>
+            
+            <div className="space-y-2 mb-4">
+              <div className="flex items-center space-x-2 text-gray-600">
+                <Users className="w-4 h-4" />
+                <span className="text-sm">Manager: {campaign.manager}</span>
+              </div>
+              <div className="flex items-center space-x-2 text-gray-600">
+                <Calendar className="w-4 h-4" />
+                <span className="text-sm">{campaign.date}</span>
+              </div>
+              <div className="flex items-center space-x-2 text-gray-600">
+                <Clock className="w-4 h-4" />
+                <span className="text-sm">{campaign.time}</span>
+              </div>
+              <div className="flex items-center space-x-2 text-gray-600">
+                <MapPin className="w-4 h-4" />
+                <span className="text-sm">{campaign.location}</span>
+              </div>
+            </div>
 
-        <div className="flex justify-between items-center">
-          <div className="flex-1 bg-gray-200 rounded-full h-2 mr-4">
-            <div 
-              className="bg-blue-500 h-2 rounded-full" 
-              style={{ width: `${(campaign.currentVolunteers / campaign.volunteersNeeded) * 100}%` }}
-            ></div>
+            <p className="text-gray-600 text-sm mb-4">{campaign.description}</p>
+            
+            {campaign.startsIn && (
+              <div className="bg-gradient-to-r from-orange-100 to-red-100 border border-orange-200 rounded-lg p-3 mb-4">
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-4 h-4 text-orange-600" />
+                  <span className="text-sm font-medium text-orange-800">
+                    Starts in {campaign.startsIn}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
           
-          {!isJoined && (
-            <Button
-              onClick={() => handleShowInterest(campaign.id, campaign.name)}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              <Heart className="w-4 h-4 mr-2" />
-              Show Interest
-            </Button>
-          )}
-          
-          {isJoined && (
-            <Badge variant="default" className="bg-green-600">
-              <CheckCircle className="w-4 h-4 mr-1" />
-              Joined
-            </Badge>
-          )}
+          <div className="ml-4">
+            {!isJoined ? (
+              <Button
+                onClick={() => handleShowInterest(campaign.id)}
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                Show Interest
+              </Button>
+            ) : (
+              <div className="flex items-center space-x-2 text-green-600">
+                <CheckCircle className="w-5 h-5" />
+                <span className="font-medium">Joined</span>
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold">Volunteer Dashboard</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button
-                variant={activeTab === 'available' ? 'default' : 'outline'}
-                onClick={() => setActiveTab('available')}
-              >
-                Available Campaigns
-              </Button>
-              <Button
-                variant={activeTab === 'joined' ? 'default' : 'outline'}
-                onClick={() => setActiveTab('joined')}
-              >
-                Already Joined
-              </Button>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+      <Navigation title="Volunteer Dashboard">
+        <div className="flex items-center space-x-4">
+          <Button
+            variant={activeTab === 'available' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('available')}
+            className="flex items-center space-x-2"
+          >
+            <Heart className="w-4 h-4" />
+            <span>Available Campaigns</span>
+          </Button>
+          <Button
+            variant={activeTab === 'joined' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('joined')}
+            className="flex items-center space-x-2"
+          >
+            <CheckCircle className="w-4 h-4" />
+            <span>My Campaigns</span>
+          </Button>
         </div>
-      </nav>
+      </Navigation>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">
-            {activeTab === 'available' ? 'Available Campaigns' : 'Your Joined Campaigns'}
-          </h2>
-          <Badge variant="outline" className="text-sm">
+        {/* Welcome Section */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            {activeTab === 'available' ? '🌟 Discover Amazing Campaigns' : '🎯 Your Active Campaigns'}
+          </h1>
+          <p className="text-xl text-gray-600">
             {activeTab === 'available' 
-              ? `${availableCampaigns.length} campaigns available` 
-              : `${joinedCampaigns.length} campaigns joined`
-            }
-          </Badge>
+              ? 'Find meaningful volunteer opportunities and make a difference in your community'
+              : 'Track your volunteer journey and upcoming commitments'}
+          </p>
         </div>
 
-        {/* Automated Email Reminder Notice for Joined Campaigns */}
-        {activeTab === 'joined' && joinedCampaigns.length > 0 && (
-          <Card className="mb-6 bg-blue-50 border-blue-200">
-            <CardContent className="p-4">
-              <div className="flex items-center">
-                <Bell className="w-5 h-5 text-blue-500 mr-2" />
-                <span className="text-blue-700 font-medium">
-                  You'll receive automatic email reminders 2 hours before each campaign starts.
-                </span>
+        {/* Stats Section */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-6 text-center">
+              <div className="text-3xl font-bold text-blue-600 mb-2">
+                {activeTab === 'available' ? availableCampaigns.length : joinedCampaigns.length}
+              </div>
+              <div className="text-gray-600">
+                {activeTab === 'available' ? 'Available' : 'Joined'} Campaigns
               </div>
             </CardContent>
           </Card>
-        )}
+          <Card className="bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-6 text-center">
+              <div className="text-3xl font-bold text-green-600 mb-2">
+                {joinedCampaigns.length}
+              </div>
+              <div className="text-gray-600">Total Joined</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-6 text-center">
+              <div className="text-3xl font-bold text-purple-600 mb-2">
+                {joinedCampaigns.length * 4}
+              </div>
+              <div className="text-gray-600">Hours Volunteered</div>
+            </CardContent>
+          </Card>
+        </div>
 
         {/* Campaigns List */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           {activeTab === 'available' && availableCampaigns.map(campaign => (
             <CampaignCard key={campaign.id} campaign={campaign} />
           ))}
@@ -222,13 +232,18 @@ const VolunteerDashboard = () => {
 
         {((activeTab === 'available' && availableCampaigns.length === 0) || 
           (activeTab === 'joined' && joinedCampaigns.length === 0)) && (
-          <Card>
-            <CardContent className="text-center py-12">
-              <p className="text-gray-500">
+          <Card className="bg-white/80 backdrop-blur-sm">
+            <CardContent className="text-center py-16">
+              <div className="text-6xl mb-4">
+                {activeTab === 'available' ? '🔍' : '🎉'}
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                {activeTab === 'available' ? 'No campaigns available' : 'No joined campaigns yet'}
+              </h3>
+              <p className="text-gray-600">
                 {activeTab === 'available' 
-                  ? 'No campaigns available at the moment. Check back soon!' 
-                  : 'You haven\'t joined any campaigns yet. Browse available campaigns to get started!'
-                }
+                  ? 'Check back later for new opportunities!' 
+                  : 'Start by showing interest in available campaigns.'}
               </p>
             </CardContent>
           </Card>

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
+import Navigation from './shared/Navigation';
 
 const ManagerDashboard = () => {
   const [activeTab, setActiveTab] = useState('interested');
@@ -96,29 +97,29 @@ const ManagerDashboard = () => {
   };
 
   const VolunteerCard = ({ volunteer, showActions = true }: { volunteer: any, showActions?: boolean }) => (
-    <Card className="mb-4">
+    <Card className="mb-4 hover:shadow-lg transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-start space-x-4">
           <img
             src={volunteer.profilePicture}
             alt={volunteer.name}
-            className="w-16 h-16 rounded-full object-cover"
+            className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
           />
           <div className="flex-1">
-            <h3 className="font-semibold text-lg">{volunteer.name}</h3>
-            <p className="text-gray-600">{volunteer.email}</p>
-            <p className="text-gray-600">{volunteer.phone}</p>
-            <div className="mt-2 space-y-1">
+            <h3 className="font-semibold text-lg text-gray-900">{volunteer.name}</h3>
+            <p className="text-gray-600 text-sm">{volunteer.email}</p>
+            <p className="text-gray-600 text-sm">{volunteer.phone}</p>
+            <div className="mt-3 space-y-2">
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">Availability:</span>
-                <Badge variant="secondary">{volunteer.availability}</Badge>
+                <span className="text-sm font-medium text-gray-700">Availability:</span>
+                <Badge variant="secondary" className="text-xs">{volunteer.availability}</Badge>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">Preferred Campaign:</span>
-                <Badge variant="outline">{volunteer.preferredCampaign}</Badge>
+                <span className="text-sm font-medium text-gray-700">Preferred Campaign:</span>
+                <Badge variant="outline" className="text-xs">{volunteer.preferredCampaign}</Badge>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium">Skills:</span>
+                <span className="text-sm font-medium text-gray-700">Skills:</span>
                 <span className="text-sm text-gray-600">{volunteer.skills}</span>
               </div>
             </div>
@@ -129,7 +130,7 @@ const ManagerDashboard = () => {
                 <Button
                   size="sm"
                   onClick={() => handleApprove(volunteer.id)}
-                  className="bg-green-600 hover:bg-green-700"
+                  className="bg-green-600 hover:bg-green-700 text-white"
                 >
                   <Check className="w-4 h-4 mr-1" />
                   Approve
@@ -148,6 +149,7 @@ const ManagerDashboard = () => {
               size="sm"
               variant="outline"
               onClick={() => handleEmail(volunteer.email)}
+              className="hover:bg-blue-50"
             >
               <Mail className="w-4 h-4 mr-1" />
               Email
@@ -156,6 +158,7 @@ const ManagerDashboard = () => {
               size="sm"
               variant="outline"
               onClick={() => handleText(volunteer.phone)}
+              className="hover:bg-green-50"
             >
               <MessageSquare className="w-4 h-4 mr-1" />
               Text
@@ -167,50 +170,45 @@ const ManagerDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold">Campaign Manager Dashboard</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Button
-                variant={activeTab === 'interested' ? 'default' : 'outline'}
-                onClick={() => setActiveTab('interested')}
-              >
-                <Users className="w-4 h-4 mr-2" />
-                Interested Volunteers
-              </Button>
-              <Button
-                variant={activeTab === 'joined' ? 'default' : 'outline'}
-                onClick={() => setActiveTab('joined')}
-              >
-                <UserCheck className="w-4 h-4 mr-2" />
-                Joined Volunteers
-              </Button>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <Navigation title="Campaign Manager Dashboard">
+        <div className="flex items-center space-x-4">
+          <Button
+            variant={activeTab === 'interested' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('interested')}
+            className="flex items-center space-x-2"
+          >
+            <Users className="w-4 h-4" />
+            <span>Interested Volunteers</span>
+          </Button>
+          <Button
+            variant={activeTab === 'joined' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('joined')}
+            className="flex items-center space-x-2"
+          >
+            <UserCheck className="w-4 h-4" />
+            <span>Joined Volunteers</span>
+          </Button>
         </div>
-      </nav>
+      </Navigation>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Recruitment Link Card */}
-        <Card className="mb-6">
+        <Card className="mb-8 bg-gradient-to-r from-blue-600 to-purple-600 text-white border-0">
           <CardHeader>
-            <CardTitle>Volunteer Recruitment</CardTitle>
-            <CardDescription>
-              Share this unique link to recruit volunteers for your campaigns
+            <CardTitle className="text-white">🚀 Volunteer Recruitment Center</CardTitle>
+            <CardDescription className="text-blue-100">
+              Share this unique link to recruit volunteers for your campaigns and watch your team grow!
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-3">
               <Input
                 value={recruitmentLink}
                 readOnly
-                className="flex-1"
+                className="flex-1 bg-white/10 border-white/20 text-white placeholder-white/60"
               />
-              <Button onClick={copyRecruitmentLink}>
+              <Button onClick={copyRecruitmentLink} variant="secondary">
                 <Copy className="w-4 h-4 mr-2" />
                 Copy Link
               </Button>
@@ -218,12 +216,42 @@ const ManagerDashboard = () => {
           </CardContent>
         </Card>
 
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-6 text-center">
+              <div className="text-3xl font-bold text-blue-600 mb-2">
+                {activeTab === 'interested' ? interestedVolunteers.length : joinedVolunteers.length}
+              </div>
+              <div className="text-gray-600">
+                {activeTab === 'interested' ? 'Interested' : 'Joined'} Volunteers
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-6 text-center">
+              <div className="text-3xl font-bold text-green-600 mb-2">
+                {Math.round((joinedVolunteers.length / (interestedVolunteers.length + joinedVolunteers.length)) * 100) || 0}%
+              </div>
+              <div className="text-gray-600">Conversion Rate</div>
+            </CardContent>
+          </Card>
+          <Card className="bg-white/80 backdrop-blur-sm">
+            <CardContent className="p-6 text-center">
+              <div className="text-3xl font-bold text-purple-600 mb-2">
+                {interestedVolunteers.length + joinedVolunteers.length}
+              </div>
+              <div className="text-gray-600">Total Volunteers</div>
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Controls */}
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">
-            {activeTab === 'interested' ? 'Interested Volunteers' : 'Joined Volunteers'}
+          <h2 className="text-3xl font-bold text-gray-900">
+            {activeTab === 'interested' ? '👋 Interested Volunteers' : '✅ Joined Volunteers'}
           </h2>
-          <Button onClick={handleExportContacts}>
+          <Button onClick={handleExportContacts} className="bg-blue-600 hover:bg-blue-700">
             <Download className="w-4 h-4 mr-2" />
             Export Contacts
           </Button>
@@ -241,11 +269,23 @@ const ManagerDashboard = () => {
 
         {((activeTab === 'interested' && interestedVolunteers.length === 0) || 
           (activeTab === 'joined' && joinedVolunteers.length === 0)) && (
-          <Card>
-            <CardContent className="text-center py-12">
-              <p className="text-gray-500">
-                No {activeTab} volunteers yet. Share your recruitment link to get started!
+          <Card className="bg-white/80 backdrop-blur-sm">
+            <CardContent className="text-center py-16">
+              <div className="text-6xl mb-4">
+                {activeTab === 'interested' ? '👥' : '🎉'}
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                No {activeTab} volunteers yet
+              </h3>
+              <p className="text-gray-600 mb-6">
+                {activeTab === 'interested' 
+                  ? 'Share your recruitment link to start attracting volunteers!' 
+                  : 'Approve interested volunteers to see them here.'}
               </p>
+              <Button onClick={copyRecruitmentLink} className="bg-blue-600 hover:bg-blue-700">
+                <Copy className="w-4 h-4 mr-2" />
+                Copy Recruitment Link
+              </Button>
             </CardContent>
           </Card>
         )}
