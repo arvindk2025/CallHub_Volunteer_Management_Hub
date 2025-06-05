@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,10 +9,10 @@ const LandingPage = () => {
   const navigate = useNavigate();
 
   const stats = [
-    { number: "50,000+", label: "Volunteers Recruited", icon: Users, color: "from-blue-500 to-cyan-500" },
+    { number: "50K+", label: "Volunteers Recruited", icon: Users, color: "from-blue-500 to-cyan-500" },
     { number: "95%", label: "Recruitment Success Rate", icon: Target, color: "from-green-500 to-emerald-500" },
     { number: "85%", label: "Time Saved on Coordination", icon: Clock, color: "from-purple-500 to-pink-500" },
-    { number: "2,000+", label: "Active Campaigns", icon: TrendingUp, color: "from-orange-500 to-red-500" },
+    { number: "2K+", label: "Active Campaigns", icon: TrendingUp, color: "from-orange-500 to-red-500" },
   ];
 
   const features = [

@@ -19,15 +19,51 @@ const VolunteerDashboard = () => {
   const volunteerId = localStorage.getItem('volunteerId') || 'vol-001';
   const volunteerName = localStorage.getItem('volunteerName') || 'Volunteer User';
 
+  // Mock invitation data for demo purposes
+  const mockInvitations: Invitation[] = [
+    {
+      id: 'inv-001',
+      campaignId: 'camp-001',
+      volunteerId: volunteerId,
+      invitedDate: '2024-05-15T10:00:00.000Z',
+      status: 'pending',
+      message: 'Hi! We think you would be perfect for this community food drive campaign based on your skills and availability. Your experience in customer service would be very valuable!'
+    },
+    {
+      id: 'inv-002',
+      campaignId: 'camp-003',
+      volunteerId: volunteerId,
+      invitedDate: '2024-05-14T14:30:00.000Z',
+      status: 'pending',
+      message: 'Hello! We have an exciting environmental cleanup campaign that matches your interests in physical labor and organization. Would love to have you join us!'
+    },
+    {
+      id: 'inv-003',
+      campaignId: 'camp-005',
+      volunteerId: volunteerId,
+      invitedDate: '2024-05-13T09:15:00.000Z',
+      status: 'accepted',
+      message: 'We noticed your teaching and mentoring skills and think you would be an amazing addition to our youth mentorship program. Hope you can join us!'
+    }
+  ];
+
   useEffect(() => {
-    // Load invitations for the current volunteer
+    // Load invitations for the current volunteer or use mock data for demo
     const volunteerInvitations = invitationService.getVolunteerInvitations(volunteerId);
-    setInvitations(volunteerInvitations);
+    
+    // If no stored invitations, use mock data for demo
+    if (volunteerInvitations.length === 0) {
+      setInvitations(mockInvitations);
+    } else {
+      setInvitations(volunteerInvitations);
+    }
     
     // Refresh invitations every 5 seconds to catch new ones
     const interval = setInterval(() => {
       const updatedInvitations = invitationService.getVolunteerInvitations(volunteerId);
-      setInvitations(updatedInvitations);
+      if (updatedInvitations.length > 0) {
+        setInvitations(updatedInvitations);
+      }
     }, 5000);
 
     return () => clearInterval(interval);

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,12 +18,88 @@ const ManagerDashboard = () => {
   const managerName = localStorage.getItem('managerName') || 'Sarah Johnson'; // Default manager name
   const recruitmentLink = `${window.location.origin}/volunteer-signup?ref=${managerId}`;
 
+  // Mock data for interested volunteers (showing 6 volunteers as per the image)
+  const mockInterestedVolunteers = [
+    {
+      id: 'vol-001',
+      volunteerName: 'Alex Thompson',
+      volunteerEmail: 'alex.thompson@email.com',
+      volunteerPhone: '+1 (555) 123-4567',
+      volunteerLocation: 'California, 90210',
+      availableShifts: ['Morning'],
+      campaignName: 'Community Food Drive',
+      volunteerSkills: 'Customer Service, Data Entry',
+      appliedDate: '2024-05-12T10:00:00.000Z'
+    },
+    {
+      id: 'vol-002',
+      volunteerName: 'Taylor Brown',
+      volunteerEmail: 'taylor.brown@email.com',
+      volunteerPhone: '+1 (555) 345-6789',
+      volunteerLocation: 'Illinois, 60601',
+      availableShifts: ['Afternoon'],
+      campaignName: 'Community Food Drive',
+      volunteerSkills: 'Organization, Teamwork',
+      appliedDate: '2024-05-12T11:30:00.000Z'
+    },
+    {
+      id: 'vol-003',
+      volunteerName: 'Morgan Lee',
+      volunteerEmail: 'morgan.lee@email.com',
+      volunteerPhone: '+1 (555) 567-8901',
+      volunteerLocation: 'Florida, 33101',
+      availableShifts: ['Evening'],
+      campaignName: 'Phone Banking for Education',
+      volunteerSkills: 'Physical Labor, Organization',
+      appliedDate: '2024-05-12T14:15:00.000Z'
+    },
+    {
+      id: 'vol-004',
+      volunteerName: 'Jordan Smith',
+      volunteerEmail: 'jordan.smith@email.com',
+      volunteerPhone: '+1 (555) 789-0123',
+      volunteerLocation: 'Texas, 75201',
+      availableShifts: ['Morning', 'Afternoon'],
+      campaignName: 'Environmental Cleanup',
+      volunteerSkills: 'Communication, Leadership',
+      appliedDate: '2024-05-13T09:00:00.000Z'
+    },
+    {
+      id: 'vol-005',
+      volunteerName: 'Casey Johnson',
+      volunteerEmail: 'casey.johnson@email.com',
+      volunteerPhone: '+1 (555) 234-5678',
+      volunteerLocation: 'New York, 10001',
+      availableShifts: ['Evening'],
+      campaignName: 'Youth Mentorship Program',
+      volunteerSkills: 'Teaching, Mentoring',
+      appliedDate: '2024-05-13T16:45:00.000Z'
+    },
+    {
+      id: 'vol-006',
+      volunteerName: 'Riley Davis',
+      volunteerEmail: 'riley.davis@email.com',
+      volunteerPhone: '+1 (555) 456-7890',
+      volunteerLocation: 'Washington, 98101',
+      availableShifts: ['Morning'],
+      campaignName: 'Community Outreach',
+      volunteerSkills: 'Event Planning, Public Speaking',
+      appliedDate: '2024-05-14T08:30:00.000Z'
+    }
+  ];
+
   useEffect(() => {
-    // Load interested volunteers for this specific manager
+    // Load interested volunteers for this specific manager or use mock data for demo
     const loadInterestedVolunteers = () => {
       const managerKey = `interestedVolunteers_${managerName}`;
       const volunteers = JSON.parse(localStorage.getItem(managerKey) || '[]');
-      setInterestedVolunteers(volunteers);
+      
+      // If no stored volunteers, use mock data for demo
+      if (volunteers.length === 0) {
+        setInterestedVolunteers(mockInterestedVolunteers);
+      } else {
+        setInterestedVolunteers(volunteers);
+      }
     };
 
     loadInterestedVolunteers();
