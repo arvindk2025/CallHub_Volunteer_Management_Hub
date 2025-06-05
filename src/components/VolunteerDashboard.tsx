@@ -17,6 +17,7 @@ const VolunteerDashboard = () => {
   
   const userEmail = localStorage.getItem('userEmail') || 'volunteer@example.com';
   const volunteerId = localStorage.getItem('volunteerId') || 'vol-001';
+  const volunteerName = localStorage.getItem('volunteerName') || 'Volunteer User';
 
   useEffect(() => {
     // Load invitations for the current volunteer
@@ -57,9 +58,51 @@ const VolunteerDashboard = () => {
   }
 
   const handleShowInterest = (campaignId: string) => {
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (!campaign) return;
+
+    // Create interest request for the specific manager
+    const interestRequest = {
+      id: `interest-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      volunteerId: volunteerId,
+      volunteerName: volunteerName,
+      volunteerEmail: userEmail,
+      campaignId: campaignId,
+      campaignName: campaign.name,
+      managerId: campaign.manager, // This links to the specific manager
+      appliedDate: new Date().toISOString(),
+      status: 'pending',
+      volunteerPhone: localStorage.getItem('volunteerPhone') || '+1 (555) 000-0000',
+      volunteerLocation: localStorage.getItem('volunteerLocation') || 'California, 90210',
+      volunteerSkills: localStorage.getItem('volunteerSkills') || 'Communication, Organization',
+      availableShifts: JSON.parse(localStorage.getItem('volunteerShifts') || '["Morning"]')
+    };
+
+    // Get existing interest requests for this manager
+    const managerKey = `interestedVolunteers_${campaign.manager}`;
+    const existingRequests = JSON.parse(localStorage.getItem(managerKey) || '[]');
+    
+    // Check if already applied
+    const alreadyApplied = existingRequests.some((req: any) => 
+      req.volunteerId === volunteerId && req.campaignId === campaignId
+    );
+
+    if (alreadyApplied) {
+      toast({
+        title: "Already Applied",
+        description: "You have already shown interest in this campaign.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Add new request
+    existingRequests.push(interestRequest);
+    localStorage.setItem(managerKey, JSON.stringify(existingRequests));
+
     toast({
       title: "Interest Registered!",
-      description: "Your interest has been sent to the campaign manager. They will contact you soon.",
+      description: `Your interest has been sent to ${campaign.manager}. They will contact you soon.`,
     });
   };
 

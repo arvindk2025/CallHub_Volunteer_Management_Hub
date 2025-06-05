@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy, History, Settings } from 'lucide-react';
+import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy, History, Settings, Phone, MapPin, Clock } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import Navigation from './shared/Navigation';
 import PastVolunteers from './PastVolunteers';
@@ -13,47 +14,49 @@ import { invitationService } from '../utils/invitationService';
 
 const ManagerDashboard = () => {
   const [activeTab, setActiveTab] = useState('interested');
+  const [interestedVolunteers, setInterestedVolunteers] = useState([]);
   const managerId = localStorage.getItem('managerId') || 'default';
+  const managerName = localStorage.getItem('managerName') || 'Sarah Johnson'; // Default manager name
   const recruitmentLink = `${window.location.origin}/volunteer-signup?ref=${managerId}`;
 
-  // Mock data - in real app, this would come from your database
-  const interestedVolunteers = [
-    {
-      id: '1',
-      name: 'John Doe',
-      email: 'john@example.com',
-      phone: '+1234567890',
-      availability: 'Morning, Evening',
-      preferredCampaign: 'Community Outreach',
-      skills: 'Communication, Event Planning',
-      profilePicture: '/placeholder.svg'
-    },
-    {
-      id: '2',
-      name: 'Jane Smith',
-      email: 'jane@example.com',
-      phone: '+1234567891',
-      availability: 'Afternoon',
-      preferredCampaign: 'Environmental Cleanup',
-      skills: 'Leadership, Organization',
-      profilePicture: '/placeholder.svg'
-    }
-  ];
+  useEffect(() => {
+    // Load interested volunteers for this specific manager
+    const loadInterestedVolunteers = () => {
+      const managerKey = `interestedVolunteers_${managerName}`;
+      const volunteers = JSON.parse(localStorage.getItem(managerKey) || '[]');
+      setInterestedVolunteers(volunteers);
+    };
 
+    loadInterestedVolunteers();
+    
+    // Refresh every 3 seconds to catch new interest requests
+    const interval = setInterval(loadInterestedVolunteers, 3000);
+    return () => clearInterval(interval);
+  }, [managerName]);
+
+  // Mock joined volunteers data
   const joinedVolunteers = [
     {
       id: '3',
-      name: 'Mike Johnson',
-      email: 'mike@example.com',
-      phone: '+1234567892',
-      availability: 'Morning, Afternoon',
-      preferredCampaign: 'Education Drive',
-      skills: 'Teaching, Mentoring',
-      profilePicture: '/placeholder.svg'
+      volunteerName: 'Mike Johnson',
+      volunteerEmail: 'mike@example.com',
+      volunteerPhone: '+1234567892',
+      volunteerLocation: 'California, 90210',
+      availableShifts: ['Morning', 'Afternoon'],
+      campaignName: 'Education Drive',
+      volunteerSkills: 'Teaching, Mentoring',
+      appliedDate: '2024-06-01T10:00:00.000Z'
     }
   ];
 
   const handleApprove = (volunteerId: string) => {
+    // Remove from interested and add to joined
+    const managerKey = `interestedVolunteers_${managerName}`;
+    const volunteers = JSON.parse(localStorage.getItem(managerKey) || '[]');
+    const updatedVolunteers = volunteers.filter((v: any) => v.id !== volunteerId);
+    localStorage.setItem(managerKey, JSON.stringify(updatedVolunteers));
+    setInterestedVolunteers(updatedVolunteers);
+    
     toast({
       title: "Volunteer Approved",
       description: "The volunteer has been approved and moved to joined volunteers.",
@@ -61,6 +64,13 @@ const ManagerDashboard = () => {
   };
 
   const handleReject = (volunteerId: string) => {
+    // Remove from interested volunteers
+    const managerKey = `interestedVolunteers_${managerName}`;
+    const volunteers = JSON.parse(localStorage.getItem(managerKey) || '[]');
+    const updatedVolunteers = volunteers.filter((v: any) => v.id !== volunteerId);
+    localStorage.setItem(managerKey, JSON.stringify(updatedVolunteers));
+    setInterestedVolunteers(updatedVolunteers);
+    
     toast({
       title: "Volunteer Rejected",
       description: "The volunteer application has been rejected.",
@@ -74,7 +84,7 @@ const ManagerDashboard = () => {
       const existingVolunteer = volunteers.find((v: any) => v.id === volunteerId);
       
       if (!existingVolunteer) {
-        const volunteer = interestedVolunteers.find(v => v.id === volunteerId);
+        const volunteer = interestedVolunteers.find((v: any) => v.id === volunteerId);
         if (volunteer) {
           volunteers.push(volunteer);
           localStorage.setItem('volunteers', JSON.stringify(volunteers));
@@ -111,9 +121,13 @@ const ManagerDashboard = () => {
     window.open(`https://wa.me/${phone.replace(/[^\d]/g, '')}?text=Hello! We have exciting volunteer opportunities available.`);
   };
 
+  const handleCall = (phone: string) => {
+    window.open(`tel:${phone}`);
+  };
+
   const handleExportContacts = () => {
     const volunteers = activeTab === 'interested' ? interestedVolunteers : joinedVolunteers;
-    const csvContent = volunteers.map(v => `${v.name},${v.email},${v.phone}`).join('\n');
+    const csvContent = volunteers.map((v: any) => `${v.volunteerName},${v.volunteerEmail},${v.volunteerPhone}`).join('\n');
     const blob = new Blob([`Name,Email,Phone\n${csvContent}`], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -135,86 +149,218 @@ const ManagerDashboard = () => {
     });
   };
 
-  const VolunteerCard = ({ volunteer, showActions = true }: { volunteer: any, showActions?: boolean }) => (
-    <Card className="mb-4 hover:shadow-lg transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex items-start space-x-4">
-          <img
-            src={volunteer.profilePicture}
-            alt={volunteer.name}
-            className="w-16 h-16 rounded-full object-cover border-2 border-gray-200"
-          />
-          <div className="flex-1">
-            <h3 className="font-semibold text-lg text-gray-900">{volunteer.name}</h3>
-            <p className="text-gray-600 text-sm">{volunteer.email}</p>
-            <p className="text-gray-600 text-sm">{volunteer.phone}</p>
-            <div className="mt-3 space-y-2">
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-700">Availability:</span>
-                <Badge variant="secondary" className="text-xs">{volunteer.availability}</Badge>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-700">Preferred Campaign:</span>
-                <Badge variant="outline" className="text-xs">{volunteer.preferredCampaign}</Badge>
-              </div>
-              <div className="flex items-center space-x-2">
-                <span className="text-sm font-medium text-gray-700">Skills:</span>
-                <span className="text-sm text-gray-600">{volunteer.skills}</span>
-              </div>
+  const InterestedVolunteerCard = ({ volunteer }: { volunteer: any }) => {
+    // Extract initials from name
+    const getInitials = (name: string) => {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    };
+
+    // Generate a consistent color based on the volunteer's name
+    const getAvatarColor = (name: string) => {
+      const colors = [
+        'bg-blue-500', 'bg-purple-500', 'bg-green-500', 
+        'bg-orange-500', 'bg-pink-500', 'bg-indigo-500'
+      ];
+      const index = name.charCodeAt(0) % colors.length;
+      return colors[index];
+    };
+
+    return (
+      <Card className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+        <CardContent className="p-6">
+          <div className="flex items-start space-x-4">
+            {/* Avatar */}
+            <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-semibold text-lg ${getAvatarColor(volunteer.volunteerName)}`}>
+              {getInitials(volunteer.volunteerName)}
             </div>
-          </div>
-          <div className="flex flex-col space-y-2">
-            {showActions && activeTab === 'interested' && (
-              <>
+
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">{volunteer.volunteerName}</h3>
+              <p className="text-sm text-gray-600 mb-1">{volunteer.campaignName}</p>
+              <p className="text-xs text-gray-500 mb-4">
+                Applied: {new Date(volunteer.appliedDate).toLocaleDateString()}
+              </p>
+
+              {/* Contact Info */}
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Mail className="w-4 h-4" />
+                  <span>{volunteer.volunteerEmail}</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Phone className="w-4 h-4" />
+                  <span>{volunteer.volunteerPhone}</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <MapPin className="w-4 h-4" />
+                  <span>Location: {volunteer.volunteerLocation}</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Clock className="w-4 h-4" />
+                  <span>Available Shift: {Array.isArray(volunteer.availableShifts) ? volunteer.availableShifts.join(', ') : volunteer.availableShifts}</span>
+                </div>
+              </div>
+
+              {/* Skills */}
+              <div className="mb-4">
+                <p className="text-sm font-medium text-gray-700 mb-2">Skills:</p>
+                <div className="flex flex-wrap gap-1">
+                  {volunteer.volunteerSkills.split(', ').map((skill: string, index: number) => (
+                    <Badge key={index} variant="secondary" className="text-xs px-2 py-1">
+                      {skill.trim()}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-2">
                 <Button
                   size="sm"
-                  onClick={() => handleSendInvitation(volunteer.id, volunteer.name)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                  onClick={() => handleEmail(volunteer.volunteerEmail)}
+                  variant="outline"
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
                 >
-                  <Mail className="w-4 h-4 mr-1" />
-                  Send Invitation
+                  <Mail className="w-3 h-3 mr-1" />
+                  Email
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => handleCall(volunteer.volunteerPhone)}
+                  variant="outline"
+                  className="text-green-600 border-green-200 hover:bg-green-50"
+                >
+                  <Phone className="w-3 h-3 mr-1" />
+                  Call
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => handleText(volunteer.volunteerPhone)}
+                  variant="outline"
+                  className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                >
+                  <MessageSquare className="w-3 h-3 mr-1" />
+                  WhatsApp
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => handleApprove(volunteer.id)}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
-                  <Check className="w-4 h-4 mr-1" />
+                  <Check className="w-3 h-3 mr-1" />
                   Approve
                 </Button>
                 <Button
                   size="sm"
-                  variant="destructive"
                   onClick={() => handleReject(volunteer.id)}
+                  variant="destructive"
                 >
-                  <X className="w-4 h-4 mr-1" />
+                  <X className="w-3 h-3 mr-1" />
                   Reject
                 </Button>
-              </>
-            )}
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleEmail(volunteer.email)}
-              className="hover:bg-blue-50"
-            >
-              <Mail className="w-4 h-4 mr-1" />
-              Email
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => handleText(volunteer.phone)}
-              className="hover:bg-green-50"
-            >
-              <MessageSquare className="w-4 h-4 mr-1" />
-              Text
-            </Button>
+              </div>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const JoinedVolunteerCard = ({ volunteer }: { volunteer: any }) => {
+    const getInitials = (name: string) => {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    };
+
+    const getAvatarColor = (name: string) => {
+      const colors = [
+        'bg-blue-500', 'bg-purple-500', 'bg-green-500', 
+        'bg-orange-500', 'bg-pink-500', 'bg-indigo-500'
+      ];
+      const index = name.charCodeAt(0) % colors.length;
+      return colors[index];
+    };
+
+    return (
+      <Card className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+        <CardContent className="p-6">
+          <div className="flex items-start space-x-4">
+            <div className={`w-14 h-14 rounded-full flex items-center justify-center text-white font-semibold text-lg ${getAvatarColor(volunteer.volunteerName)}`}>
+              {getInitials(volunteer.volunteerName)}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-semibold text-gray-900 mb-1">{volunteer.volunteerName}</h3>
+              <p className="text-sm text-gray-600 mb-1">{volunteer.campaignName}</p>
+              <p className="text-xs text-gray-500 mb-4">
+                Applied: {new Date(volunteer.appliedDate).toLocaleDateString()}
+              </p>
+
+              <div className="space-y-2 mb-4">
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Mail className="w-4 h-4" />
+                  <span>{volunteer.volunteerEmail}</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Phone className="w-4 h-4" />
+                  <span>{volunteer.volunteerPhone}</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <MapPin className="w-4 h-4" />
+                  <span>Location: {volunteer.volunteerLocation}</span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <Clock className="w-4 h-4" />
+                  <span>Available Shift: {Array.isArray(volunteer.availableShifts) ? volunteer.availableShifts.join(', ') : volunteer.availableShifts}</span>
+                </div>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-sm font-medium text-gray-700 mb-2">Skills:</p>
+                <div className="flex flex-wrap gap-1">
+                  {volunteer.volunteerSkills.split(', ').map((skill: string, index: number) => (
+                    <Badge key={index} variant="secondary" className="text-xs px-2 py-1">
+                      {skill.trim()}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  onClick={() => handleEmail(volunteer.volunteerEmail)}
+                  variant="outline"
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                >
+                  <Mail className="w-3 h-3 mr-1" />
+                  Email
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => handleCall(volunteer.volunteerPhone)}
+                  variant="outline"
+                  className="text-green-600 border-green-200 hover:bg-green-50"
+                >
+                  <Phone className="w-3 h-3 mr-1" />
+                  Call
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => handleText(volunteer.volunteerPhone)}
+                  variant="outline"
+                  className="text-purple-600 border-purple-200 hover:bg-purple-50"
+                >
+                  <MessageSquare className="w-3 h-3 mr-1" />
+                  WhatsApp
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
@@ -293,16 +439,19 @@ const ManagerDashboard = () => {
             </div>
 
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold text-gray-900">👋 Interested Volunteers</h2>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Interested Volunteers</h2>
+                <p className="text-gray-600">Review and approve volunteers who have shown interest in your campaigns</p>
+              </div>
               <Button onClick={handleExportContacts} className="bg-blue-600 hover:bg-blue-700">
                 <Download className="w-4 h-4 mr-2" />
                 Export Contacts
               </Button>
             </div>
 
-            <div className="space-y-4">
-              {interestedVolunteers.map(volunteer => (
-                <VolunteerCard key={volunteer.id} volunteer={volunteer} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+              {interestedVolunteers.map((volunteer: any) => (
+                <InterestedVolunteerCard key={volunteer.id} volunteer={volunteer} />
               ))}
             </div>
 
@@ -327,16 +476,19 @@ const ManagerDashboard = () => {
 
           <TabsContent value="joined" className="space-y-6">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold text-gray-900">✅ Joined Volunteers</h2>
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">Joined Volunteers</h2>
+                <p className="text-gray-600">Manage volunteers who are actively participating in your campaigns</p>
+              </div>
               <Button onClick={handleExportContacts} className="bg-blue-600 hover:bg-blue-700">
                 <Download className="w-4 h-4 mr-2" />
                 Export Contacts
               </Button>
             </div>
 
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
               {joinedVolunteers.map(volunteer => (
-                <VolunteerCard key={volunteer.id} volunteer={volunteer} showActions={false} />
+                <JoinedVolunteerCard key={volunteer.id} volunteer={volunteer} />
               ))}
             </div>
 
