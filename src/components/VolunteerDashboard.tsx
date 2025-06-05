@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, MapPin, User, Heart, CheckCircle, Settings, Mail, X, Check, Star } from 'lucide-react';
+import { Calendar, Clock, MapPin, User, Heart, CheckCircle, Settings, Mail, X, Check } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import Navigation from './shared/Navigation';
 import VolunteerProfile from './VolunteerProfile';
@@ -15,7 +14,6 @@ const VolunteerDashboard = () => {
   const [activeTab, setActiveTab] = useState('available');
   const [showProfile, setShowProfile] = useState(false);
   const [invitations, setInvitations] = useState<Invitation[]>([]);
-  const [joinedCampaigns, setJoinedCampaigns] = useState<any[]>([]);
   
   const userEmail = localStorage.getItem('userEmail') || 'volunteer@example.com';
   const volunteerId = localStorage.getItem('volunteerId') || 'vol-001';
@@ -24,10 +22,6 @@ const VolunteerDashboard = () => {
     // Load invitations for the current volunteer
     const volunteerInvitations = invitationService.getVolunteerInvitations(volunteerId);
     setInvitations(volunteerInvitations);
-    
-    // Load joined campaigns from localStorage
-    const savedJoinedCampaigns = JSON.parse(localStorage.getItem('joinedCampaigns') || '[]');
-    setJoinedCampaigns(savedJoinedCampaigns);
     
     // Refresh invitations every 5 seconds to catch new ones
     const interval = setInterval(() => {
@@ -44,6 +38,12 @@ const VolunteerDashboard = () => {
     startsIn: calculateDaysUntil(campaign.startDate)
   }));
 
+  const joinedCampaigns = campaigns.slice(6, 8).map(campaign => ({
+    ...campaign,
+    joinedDate: '2024-06-10',
+    startsIn: calculateDaysUntil(campaign.startDate)
+  }));
+
   function calculateDaysUntil(dateString: string): string {
     const targetDate = new Date(dateString);
     const today = new Date();
@@ -53,24 +53,12 @@ const VolunteerDashboard = () => {
     if (diffDays < 0) return 'Completed';
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return '1 day';
-    if (diffDays <= 3) return `${diffDays} days (Starting Soon!)`;
     return `${diffDays} days`;
   }
 
-  const handleShowInterest = (campaign: any) => {
-    // Add to joined campaigns
-    const newJoinedCampaign = {
-      ...campaign,
-      joinedDate: new Date().toISOString().split('T')[0],
-      status: 'interested'
-    };
-    
-    const updatedJoinedCampaigns = [...joinedCampaigns, newJoinedCampaign];
-    setJoinedCampaigns(updatedJoinedCampaigns);
-    localStorage.setItem('joinedCampaigns', JSON.stringify(updatedJoinedCampaigns));
-    
+  const handleShowInterest = (campaignId: string) => {
     toast({
-      title: "Interest Registered! 🎉",
+      title: "Interest Registered!",
       description: "Your interest has been sent to the campaign manager. They will contact you soon.",
     });
   };
@@ -81,28 +69,8 @@ const VolunteerDashboard = () => {
       inv.id === invitationId ? { ...inv, status } : inv
     ));
     
-    if (status === 'accepted') {
-      // Find the campaign and add to joined campaigns
-      const invitation = invitations.find(inv => inv.id === invitationId);
-      if (invitation) {
-        const campaign = campaigns.find(c => c.id === invitation.campaignId);
-        if (campaign) {
-          const newJoinedCampaign = {
-            ...campaign,
-            joinedDate: new Date().toISOString().split('T')[0],
-            status: 'accepted',
-            invitationId: invitationId
-          };
-          
-          const updatedJoinedCampaigns = [...joinedCampaigns, newJoinedCampaign];
-          setJoinedCampaigns(updatedJoinedCampaigns);
-          localStorage.setItem('joinedCampaigns', JSON.stringify(updatedJoinedCampaigns));
-        }
-      }
-    }
-    
     toast({
-      title: status === 'accepted' ? "Invitation Accepted! 🎉" : "Invitation Declined",
+      title: status === 'accepted' ? "Invitation Accepted!" : "Invitation Declined",
       description: status === 'accepted' 
         ? "You've successfully joined the campaign!" 
         : "The invitation has been declined.",
@@ -134,21 +102,14 @@ const VolunteerDashboard = () => {
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-xl font-bold text-gray-900">{campaign.name}</h3>
-              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-                campaign.startsIn.includes('Starting Soon') 
-                  ? 'bg-red-100 text-red-800' 
-                  : campaign.startsIn === 'Today'
-                  ? 'bg-orange-100 text-orange-800'
-                  : 'bg-blue-100 text-blue-800'
-              }`}>
-                {campaign.startsIn.includes('Starting Soon') ? '🔥 ' : '📅 '}
-                Starts in {campaign.startsIn}
-              </div>
-            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">{campaign.name}</h3>
             <Badge variant="secondary" className="mb-3">{campaign.category}</Badge>
             <p className="text-gray-600 mb-4">{campaign.description}</p>
+          </div>
+          <div className="text-right">
+            <div className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+              Starts in {campaign.startsIn}
+            </div>
           </div>
         </div>
 
@@ -160,11 +121,11 @@ const VolunteerDashboard = () => {
             </div>
             <div className="flex items-center space-x-2 text-gray-600">
               <Calendar className="w-4 h-4" />
-              <span className="text-sm">{campaign.startDate} - {campaign.endDate}</span>
+              <span className="text-sm">{campaign.startDate}</span>
             </div>
             <div className="flex items-center space-x-2 text-gray-600">
               <Clock className="w-4 h-4" />
-              <span className="text-sm">{campaign.startTime} - {campaign.endTime}</span>
+              <span className="text-sm">{campaign.startTime}</span>
             </div>
             <div className="flex items-center space-x-2 text-gray-600">
               <MapPin className="w-4 h-4" />
@@ -195,9 +156,7 @@ const VolunteerDashboard = () => {
               <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-3 rounded-lg border border-green-200">
                 <div className="flex items-center space-x-2 text-green-700">
                   <CheckCircle className="w-4 h-4" />
-                  <span className="text-sm font-medium">
-                    {campaign.status === 'accepted' ? 'Invitation Accepted' : 'Interest Shown'} on {campaign.joinedDate}
-                  </span>
+                  <span className="text-sm font-medium">Joined on {campaign.joinedDate}</span>
                 </div>
               </div>
             )}
@@ -207,7 +166,7 @@ const VolunteerDashboard = () => {
         <div className="flex justify-end">
           {!isJoined ? (
             <Button 
-              onClick={() => handleShowInterest(campaign)}
+              onClick={() => handleShowInterest(campaign.id)}
               className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg"
             >
               <Heart className="w-4 h-4 mr-2" />
@@ -216,7 +175,7 @@ const VolunteerDashboard = () => {
           ) : (
             <Badge variant="outline" className="text-green-600 border-green-600">
               <CheckCircle className="w-3 h-3 mr-1" />
-              {campaign.status === 'accepted' ? 'Joined' : 'Interest Shown'}
+              Joined
             </Badge>
           )}
         </div>
@@ -350,10 +309,7 @@ const VolunteerDashboard = () => {
 
           <TabsContent value="available" className="space-y-6">
             <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900">🌟 Available Campaigns</h2>
-                <p className="text-gray-600 mt-2">Discover meaningful volunteer opportunities in your community</p>
-              </div>
+              <h2 className="text-3xl font-bold text-gray-900">🌟 Available Campaigns</h2>
               <Badge variant="secondary" className="text-lg px-4 py-2 bg-white/80 backdrop-blur-sm">
                 {availableCampaigns.length} Available
               </Badge>
@@ -368,10 +324,7 @@ const VolunteerDashboard = () => {
 
           <TabsContent value="invited" className="space-y-6">
             <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900">📧 Campaign Invitations</h2>
-                <p className="text-gray-600 mt-2">Exclusive invitations from campaign managers</p>
-              </div>
+              <h2 className="text-3xl font-bold text-gray-900">📧 Campaign Invitations</h2>
               <Badge variant="secondary" className="text-lg px-4 py-2 bg-white/80 backdrop-blur-sm">
                 {invitations.length} Invitations
               </Badge>
@@ -407,10 +360,7 @@ const VolunteerDashboard = () => {
 
           <TabsContent value="joined" className="space-y-6">
             <div className="flex justify-between items-center">
-              <div>
-                <h2 className="text-3xl font-bold text-gray-900">✅ Your Campaigns</h2>
-                <p className="text-gray-600 mt-2">Campaigns you've joined or shown interest in</p>
-              </div>
+              <h2 className="text-3xl font-bold text-gray-900">✅ Your Campaigns</h2>
               <Badge variant="secondary" className="text-lg px-4 py-2 bg-white/80 backdrop-blur-sm">
                 {joinedCampaigns.length} Joined
               </Badge>
@@ -418,7 +368,7 @@ const VolunteerDashboard = () => {
             
             <div className="space-y-6">
               {joinedCampaigns.map(campaign => (
-                <CampaignCard key={`${campaign.id}-${campaign.joinedDate}`} campaign={campaign} isJoined={true} />
+                <CampaignCard key={campaign.id} campaign={campaign} isJoined={true} />
               ))}
             </div>
 

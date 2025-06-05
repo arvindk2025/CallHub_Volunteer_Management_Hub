@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/hooks/use-toast";
-import { Heart, Users, Clock, MapPin } from 'lucide-react';
+import { Upload } from 'lucide-react';
 
 const VolunteerSignup = () => {
   const [formData, setFormData] = useState({
@@ -19,7 +19,8 @@ const VolunteerSignup = () => {
     zipcode: '',
     state: '',
     availableShifts: [],
-    skills: ''
+    skills: '',
+    profilePicture: null
   });
   
   const navigate = useNavigate();
@@ -43,14 +44,11 @@ const VolunteerSignup = () => {
     localStorage.setItem('volunteers', JSON.stringify(volunteers));
     
     toast({
-      title: "🎉 Registration Successful!",
-      description: "Welcome to our volunteer community! You can now sign in to your account.",
+      title: "Registration Successful",
+      description: "Your volunteer application has been submitted!",
     });
     
-    // Redirect to login after 2 seconds
-    setTimeout(() => {
-      navigate('/login');
-    }, 2000);
+    navigate('/login');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,195 +73,144 @@ const VolunteerSignup = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-green-500 to-blue-600 rounded-full mb-4">
-            <Heart className="w-8 h-8 text-white" />
-          </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent mb-2">
-            Join Our Volunteer Community
-          </h1>
-          <p className="text-xl text-gray-600">
-            Make a difference in your community and create lasting impact!
-          </p>
-        </div>
-
-        {/* Benefits Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="bg-white/80 backdrop-blur-sm border-green-200 hover:shadow-lg transition-all">
-            <CardContent className="p-6 text-center">
-              <Users className="w-12 h-12 text-green-600 mx-auto mb-3" />
-              <h3 className="font-bold text-gray-900 mb-2">Build Community</h3>
-              <p className="text-sm text-gray-600">Connect with like-minded people and build lasting relationships</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-white/80 backdrop-blur-sm border-blue-200 hover:shadow-lg transition-all">
-            <CardContent className="p-6 text-center">
-              <Clock className="w-12 h-12 text-blue-600 mx-auto mb-3" />
-              <h3 className="font-bold text-gray-900 mb-2">Flexible Schedule</h3>
-              <p className="text-sm text-gray-600">Choose shifts that work with your availability</p>
-            </CardContent>
-          </Card>
-          <Card className="bg-white/80 backdrop-blur-sm border-purple-200 hover:shadow-lg transition-all">
-            <CardContent className="p-6 text-center">
-              <MapPin className="w-12 h-12 text-purple-600 mx-auto mb-3" />
-              <h3 className="font-bold text-gray-900 mb-2">Local Impact</h3>
-              <p className="text-sm text-gray-600">Make a real difference in your local community</p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Registration Form */}
-        <Card className="bg-white/90 backdrop-blur-md shadow-2xl border-0">
-          <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white rounded-t-lg">
-            <CardTitle className="text-2xl text-center">Volunteer Registration</CardTitle>
-            <CardDescription className="text-center text-green-100">
-              Fill out the form below to get started on your volunteer journey
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Personal Information */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <Users className="w-5 h-5 mr-2 text-green-600" />
-                  Personal Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-gray-700 font-medium">Full Name *</Label>
-                    <Input
-                      id="name"
-                      name="name"
-                      placeholder="Enter your full name"
-                      value={formData.name}
-                      onChange={handleInputChange}
-                      required
-                      className="border-gray-300 focus:border-green-500 focus:ring-green-500"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-gray-700 font-medium">Email Address *</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                      className="border-gray-300 focus:border-green-500 focus:ring-green-500"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-gray-700 font-medium">Phone Number *</Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      placeholder="Enter your phone number"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      required
-                      className="border-gray-300 focus:border-green-500 focus:ring-green-500"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="zipcode" className="text-gray-700 font-medium">Zip Code *</Label>
-                    <Input
-                      id="zipcode"
-                      name="zipcode"
-                      placeholder="Enter your zip code"
-                      value={formData.zipcode}
-                      onChange={handleInputChange}
-                      required
-                      className="border-gray-300 focus:border-green-500 focus:ring-green-500"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="state" className="text-gray-700 font-medium">State *</Label>
-                    <Select onValueChange={(value) => setFormData({...formData, state: value})}>
-                      <SelectTrigger className="border-gray-300 focus:border-green-500 focus:ring-green-500">
-                        <SelectValue placeholder="Select your state" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {states.map(state => (
-                          <SelectItem key={state} value={state}>{state}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">Volunteer Registration</CardTitle>
+          <CardDescription className="text-center">
+            Join our volunteer community and make a difference!
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Full Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  placeholder="Enter your full name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
-
-              {/* Availability */}
-              <div className="bg-blue-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <Clock className="w-5 h-5 mr-2 text-blue-600" />
-                  Availability
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {shifts.map(shift => (
-                    <div key={shift} className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
-                      <Checkbox
-                        id={shift}
-                        checked={formData.availableShifts.includes(shift)}
-                        onCheckedChange={(checked) => handleShiftChange(shift, checked as boolean)}
-                        className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                      />
-                      <Label htmlFor={shift} className="text-sm font-medium text-gray-700 cursor-pointer flex-1">
-                        {shift}
-                      </Label>
-                    </div>
-                  ))}
-                </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
-
-              {/* Skills */}
-              <div className="bg-purple-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                  <Heart className="w-5 h-5 mr-2 text-purple-600" />
-                  Skills & Interests
-                </h3>
-                <div className="space-y-2">
-                  <Label htmlFor="skills" className="text-gray-700 font-medium">Skills & Experience</Label>
-                  <Input
-                    id="skills"
-                    name="skills"
-                    placeholder="e.g., Communication, Event Planning, Teaching, etc."
-                    value={formData.skills}
-                    onChange={handleInputChange}
-                    className="border-gray-300 focus:border-purple-500 focus:ring-purple-500"
-                  />
-                  <p className="text-sm text-gray-500">List any relevant skills or experience you'd like to share</p>
-                </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  placeholder="Enter your phone number"
+                  value={formData.phone}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
-
-              <Button 
-                type="submit" 
-                className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white py-4 text-lg font-semibold shadow-lg"
-              >
-                🎉 Join Our Volunteer Community
-              </Button>
-            </form>
-            
-            <div className="text-center text-sm text-gray-600 mt-6">
-              Already have an account?{' '}
-              <button 
-                onClick={() => navigate('/login')}
-                className="text-green-600 hover:text-green-700 font-medium hover:underline"
-              >
-                Sign In Here
-              </button>
+              
+              <div className="space-y-2">
+                <Label htmlFor="zipcode">Zip Code</Label>
+                <Input
+                  id="zipcode"
+                  name="zipcode"
+                  placeholder="Enter your zip code"
+                  value={formData.zipcode}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="state">State</Label>
+                <Select onValueChange={(value) => setFormData({...formData, state: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select your state" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {states.map(state => (
+                      <SelectItem key={state} value={state}>{state}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="skills">Skills</Label>
+                <Input
+                  id="skills"
+                  name="skills"
+                  placeholder="e.g., Communication, Event Planning"
+                  value={formData.skills}
+                  onChange={handleInputChange}
+                />
+              </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+
+            <div className="space-y-3">
+              <Label>Available Shifts</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {shifts.map(shift => (
+                  <div key={shift} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={shift}
+                      checked={formData.availableShifts.includes(shift)}
+                      onCheckedChange={(checked) => handleShiftChange(shift, checked as boolean)}
+                    />
+                    <Label htmlFor={shift} className="text-sm">{shift}</Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="profilePicture">Profile Picture</Label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                <div className="mt-2">
+                  <Input
+                    id="profilePicture"
+                    name="profilePicture"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => setFormData({...formData, profilePicture: e.target.files[0]})}
+                  />
+                  <label htmlFor="profilePicture" className="cursor-pointer">
+                    <span className="text-sm text-gray-600">Upload a file</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <Button type="submit" className="w-full">
+              Register as Volunteer
+            </Button>
+          </form>
+          
+          <div className="text-center text-sm text-gray-600">
+            Already have an account?{' '}
+            <button 
+              onClick={() => navigate('/login')}
+              className="text-blue-600 hover:underline"
+            >
+              Sign In
+            </button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
