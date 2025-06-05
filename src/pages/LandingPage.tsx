@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from 'react-router-dom';
-import { Users, Clock, Target, TrendingUp, CheckCircle, Star, ArrowRight, Zap, Shield, Globe, Play, Award, Heart, Rocket, UserPlus, Calendar, MessageCircle, BarChart } from 'lucide-react';
+import { Users, Clock, Target, TrendingUp, CheckCircle, Star, ArrowRight, Zap, Shield, Globe, Play, Award, Heart, Rocket, UserPlus, Calendar, MessageCircle, BarChart, Check } from 'lucide-react';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -49,7 +49,7 @@ const LandingPage = () => {
       role: "Volunteer Coordinator",
       content: "CallHub transformed how we recruit and manage volunteers. We've increased our volunteer base by 300% and reduced coordination time by half!",
       rating: 5,
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=80&h=80&fit=crop&crop=face&auto=format",
+      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b5bc?w=80&h=80&fit=crop&crop=face&auto=format&q=80",
       company: "Community Action Network",
     },
     {
@@ -57,7 +57,7 @@ const LandingPage = () => {
       role: "Campaign Manager",
       content: "The automated matching system is incredible. We get exactly the right volunteers for each campaign, and retention rates have skyrocketed.",
       rating: 5,
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face&auto=format",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face&auto=format&q=80",
       company: "Help Local Initiative",
     },
     {
@@ -65,9 +65,64 @@ const LandingPage = () => {
       role: "Non-Profit Director",
       content: "CallHub's volunteer management platform streamlined our entire operation. Campaign coordination has never been this efficient and effective.",
       rating: 5,
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face&auto=format",
+      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop&crop=face&auto=format&q=80",
       company: "Volunteer United",
     },
+  ];
+
+  const pricingPlans = [
+    {
+      name: "Starter",
+      price: "$99",
+      period: "/month",
+      description: "Perfect for local campaigns and small organizations",
+      volunteers: "Up to 50 volunteers",
+      popular: false,
+      features: [
+        "Volunteer sign-up forms",
+        "Basic scheduling calendar",
+        "Email reminders",
+        "Basic reporting",
+        "Mobile access",
+        "Email support"
+      ]
+    },
+    {
+      name: "Professional",
+      price: "$299",
+      period: "/month",
+      description: "Ideal for larger campaigns and established nonprofits",
+      volunteers: "Up to 200 volunteers",
+      popular: true,
+      features: [
+        "Everything in Starter",
+        "SMS + Email reminders",
+        "Drag-and-drop scheduling",
+        "Advanced analytics",
+        "Role-based permissions",
+        "API integrations",
+        "Priority support",
+        "Custom branding"
+      ]
+    },
+    {
+      name: "Enterprise",
+      price: "Custom",
+      period: "",
+      description: "For large organizations and multi-state campaigns",
+      volunteers: "Unlimited volunteers",
+      popular: false,
+      features: [
+        "Everything in Professional",
+        "Multi-location management",
+        "Advanced automation",
+        "Custom integrations",
+        "Dedicated account manager",
+        "White-label options",
+        "SLA guarantee",
+        "Custom training"
+      ]
+    }
   ];
 
   return (
@@ -104,8 +159,7 @@ const LandingPage = () => {
                 className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 hover:from-blue-700 hover:via-purple-700 hover:to-pink-700 text-white font-semibold px-4 sm:px-8 py-2 sm:py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 text-sm sm:text-base"
               >
                 <Rocket className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Join as Volunteer</span>
-                <span className="sm:hidden">Join</span>
+                Join as Volunteer
               </Button>
             </div>
           </div>
@@ -248,7 +302,7 @@ const LandingPage = () => {
                   <div className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-gray-900 mb-3 sm:mb-4 bg-gradient-to-r ${stat.color} bg-clip-text text-transparent group-hover:scale-110 transition-transform duration-300`}>
                     {stat.number}
                   </div>
-                  <div className="text-sm sm:text-base lg:text-lg font-semibold text-gray-700 group-hover:text-gray-900 transition-colors duration-300">
+                  <div className="text-sm sm:text-base lg:text-lg font-semibold text-gray-700 group-hover:text-gray-900 transition-colors duration-300 whitespace-nowrap">
                     {stat.label}
                   </div>
                 </CardContent>
@@ -340,7 +394,11 @@ const LandingPage = () => {
                     <img
                       src={testimonial.avatar}
                       alt={testimonial.name}
-                      className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full mr-4 sm:mr-6 border-4 border-white shadow-lg group-hover:scale-110 transition-transform duration-300"
+                      className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full mr-4 sm:mr-6 border-4 border-white shadow-lg group-hover:scale-110 transition-transform duration-300 object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = `https://ui-avatars.com/api/?name=${testimonial.name}&background=random&color=fff&size=64`;
+                      }}
                     />
                     <div>
                       <div className="font-black text-gray-900 text-base sm:text-lg">{testimonial.name}</div>
@@ -355,45 +413,80 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Enhanced CTA Section */}
-      <section className="py-16 sm:py-24 lg:py-32 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-10 left-4 sm:left-10 w-20 h-20 sm:w-32 sm:h-32 bg-white/10 rounded-full animate-pulse"></div>
-          <div className="absolute bottom-20 right-4 sm:right-20 w-16 h-16 sm:w-24 sm:h-24 bg-white/10 rounded-full animate-bounce"></div>
-          <div className="absolute top-1/2 left-1/4 w-12 h-12 sm:w-16 sm:h-16 bg-white/10 rounded-full animate-ping"></div>
-        </div>
-        
-        <div className="max-w-5xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative">
-          <div className="animate-fade-in">
-            <Badge className="mb-6 sm:mb-8 bg-white/20 backdrop-blur-sm text-white border-white/30 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-lg font-medium">
-              🎯 Ready to Start?
+      {/* Pricing Plans Section */}
+      <section className="py-16 sm:py-24 lg:py-32 bg-gradient-to-br from-white via-blue-50 to-purple-50 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16 sm:mb-20 lg:mb-24 animate-fade-in">
+            <Badge className="mb-6 sm:mb-8 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-lg font-medium">
+              💰 Pricing Plans
             </Badge>
-            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white mb-6 sm:mb-8 leading-tight">
-              Transform Your Volunteer
-              <span className="block text-yellow-300">Management Today!</span>
+            <h2 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-6 sm:mb-8 leading-tight">
+              Choose the Right Plan for
+              <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600">
+                Your Campaign
+              </span>
             </h2>
-            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-blue-100 mb-12 sm:mb-16 leading-relaxed px-4">
-              Join thousands of organizations creating meaningful impact with streamlined volunteer management
+            <p className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-600 max-w-4xl mx-auto leading-relaxed px-4 mb-8">
+              Start with a 14-day free trial. No credit card required. Scale as your volunteer program grows.
             </p>
-            <div className="flex flex-col sm:flex-row gap-6 sm:gap-8 justify-center">
-              <Button
-                size="lg"
-                onClick={() => navigate('/login')}
-                className="bg-white text-blue-600 hover:bg-gray-100 text-lg sm:text-xl lg:text-2xl px-10 sm:px-12 lg:px-16 py-6 sm:py-8 shadow-2xl transform hover:scale-110 transition-all duration-300 font-black rounded-2xl"
-              >
-                <Rocket className="mr-3 sm:mr-4 w-6 h-6 sm:w-8 sm:h-8" />
-                Start Managing
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => navigate('/volunteer-signup')}
-                className="text-lg sm:text-xl lg:text-2xl px-10 sm:px-12 lg:px-16 py-6 sm:py-8 border-2 sm:border-3 border-white text-white hover:bg-white hover:text-blue-600 shadow-2xl transform hover:scale-110 transition-all duration-300 font-black rounded-2xl backdrop-blur-sm"
-              >
-                <Heart className="mr-3 sm:mr-4 w-6 h-6 sm:w-8 sm:h-8" />
-                Join as Volunteer
-              </Button>
+            <div className="flex items-center justify-center space-x-2 text-blue-600">
+              <Zap className="w-6 h-6" />
+              <span className="text-lg font-semibold">14-Day Free Trial + 30-Day Money Back Guarantee</span>
             </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+            {pricingPlans.map((plan, index) => (
+              <Card key={index} className={`relative hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-white/90 backdrop-blur-sm border-0 shadow-xl animate-scale-in ${plan.popular ? 'ring-2 ring-blue-500 scale-105' : ''}`}>
+                {plan.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-blue-500 text-white px-4 py-2 text-sm font-medium">
+                      ⭐ Most Popular
+                    </Badge>
+                  </div>
+                )}
+                
+                <CardContent className="p-6 sm:p-8 lg:p-10">
+                  <div className="text-center mb-8">
+                    <h3 className="text-2xl sm:text-3xl font-black text-gray-900 mb-4">{plan.name}</h3>
+                    <p className="text-gray-600 mb-6">{plan.description}</p>
+                    <div className="flex items-baseline justify-center mb-4">
+                      <span className="text-4xl sm:text-5xl font-black text-gray-900">{plan.price}</span>
+                      <span className="text-lg text-gray-600 ml-1">{plan.period}</span>
+                    </div>
+                    <p className="text-blue-600 font-semibold">{plan.volunteers}</p>
+                  </div>
+                  
+                  <ul className="space-y-4 mb-8">
+                    {plan.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-center">
+                        <Check className="w-5 h-5 text-green-500 mr-3 flex-shrink-0" />
+                        <span className="text-gray-700">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  
+                  <Button 
+                    className={`w-full py-4 text-lg font-semibold rounded-2xl transition-all duration-300 ${
+                      plan.popular 
+                        ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl' 
+                        : plan.name === 'Enterprise'
+                        ? 'bg-gray-900 hover:bg-gray-800 text-white'
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-900'
+                    }`}
+                    onClick={() => navigate('/login')}
+                  >
+                    {plan.name === 'Enterprise' ? 'Contact Sales' : 'Start Free Trial'}
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          <div className="text-center mt-16">
+            <p className="text-gray-600 text-lg">
+              Try CallHub's Volunteer Hub risk-free. If you're not completely satisfied with the results, we'll refund every penny within 30 days.
+            </p>
           </div>
         </div>
       </section>

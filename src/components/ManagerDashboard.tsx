@@ -1,15 +1,15 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy, History, Settings } from 'lucide-react';
+import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy, History, Settings, BarChart } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import Navigation from './shared/Navigation';
 import PastVolunteers from './PastVolunteers';
 import EmailConfiguration from './EmailConfiguration';
+import Analytics from './Analytics';
 import { invitationService } from '../utils/invitationService';
 
 const ManagerDashboard = () => {
@@ -223,7 +223,7 @@ const ManagerDashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="interested" className="flex items-center space-x-2">
               <Users className="w-4 h-4" />
               <span>Interested</span>
@@ -231,6 +231,10 @@ const ManagerDashboard = () => {
             <TabsTrigger value="joined" className="flex items-center space-x-2">
               <UserCheck className="w-4 h-4" />
               <span>Joined</span>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center space-x-2">
+              <BarChart className="w-4 h-4" />
+              <span>Analytics</span>
             </TabsTrigger>
             <TabsTrigger value="past" className="flex items-center space-x-2">
               <History className="w-4 h-4" />
@@ -358,6 +362,10 @@ const ManagerDashboard = () => {
                 </CardContent>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="analytics" className="space-y-6">
+            <Analytics />
           </TabsContent>
 
           <TabsContent value="past" className="space-y-6">
