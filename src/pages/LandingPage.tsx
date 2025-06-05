@@ -214,7 +214,7 @@ const LandingPage = () => {
       <section className="py-32 bg-gradient-to-br from-white via-blue-50 to-purple-50 relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="1"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><g fill=\"none\" fill-rule=\"evenodd\"><g fill=\"%239C92AC\" fill-opacity=\"1\"><circle cx=\"30\" cy=\"30\" r=\"4\"/></g></g></svg>')]"></div>
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -236,7 +236,6 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
             {stats.map((stat, index) => (
               <Card key={index} className="group text-center hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-white/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-purple-500/20 animate-scale-in relative overflow-hidden">
-                {/* Gradient Background */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-0 group-hover:opacity-10 transition-opacity duration-500`}></div>
                 
                 <CardContent className="p-10 relative">
@@ -258,9 +257,8 @@ const LandingPage = () => {
 
       {/* Enhanced Features Section */}
       <section className="py-32 bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 text-white relative overflow-hidden">
-        {/* Animated Background */}
         <div className="absolute inset-0">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M50 0L93.3 25v50L50 100 6.7 75V25z" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/%3E%3C/svg%3E')] animate-pulse"></div>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg width=\"100\" height=\"100\" viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M50 0L93.3 25v50L50 100 6.7 75V25z\" fill=\"none\" stroke=\"rgba(255,255,255,0.05)\" stroke-width=\"1\"/></svg>')] animate-pulse"></div>
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -322,7 +320,6 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
             {testimonials.map((testimonial, index) => (
               <Card key={index} className="group hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 bg-white/90 backdrop-blur-sm border-0 shadow-xl hover:shadow-blue-500/20 animate-scale-in relative overflow-hidden">
-                {/* Gradient Background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 
                 <CardContent className="p-10 relative">
@@ -332,7 +329,7 @@ const LandingPage = () => {
                     ))}
                   </div>
                   <p className="text-gray-700 mb-8 text-xl italic leading-relaxed font-medium">
-                    "{testimonial.content}"
+                    {testimonial.content}
                   </p>
                   <div className="flex items-center">
                     <img
@@ -355,7 +352,6 @@ const LandingPage = () => {
 
       {/* Enhanced CTA Section */}
       <section className="py-32 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 relative overflow-hidden">
-        {/* Animated Elements */}
         <div className="absolute inset-0">
           <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full animate-pulse"></div>
           <div className="absolute bottom-20 right-20 w-24 h-24 bg-white/10 rounded-full animate-bounce"></div>
@@ -399,9 +395,8 @@ const LandingPage = () => {
 
       {/* Enhanced Footer */}
       <footer className="bg-gradient-to-br from-gray-900 via-blue-900 to-black text-white py-24 relative overflow-hidden">
-        {/* Background Pattern */}
         <div className="absolute inset-0 opacity-5">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="80" height="80" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="1"%3E%3Cpath d="M0 40h80v40H0V40zm40 0a40 40 0 1 1 0-80 40 40 0 0 1 0 80z"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]"></div>
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;utf8,<svg width=\"80\" height=\"80\" viewBox=\"0 0 80 80\" xmlns=\"http://www.w3.org/2000/svg\"><g fill=\"none\" fill-rule=\"evenodd\"><g fill=\"%23ffffff\" fill-opacity=\"1\"><path d=\"M0 40h80v40H0V40zm40 0a40 40 0 1 1 0-80 40 40 0 0 1 0 80z\"/></g></g></svg>')]"></div>
         </div>
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
