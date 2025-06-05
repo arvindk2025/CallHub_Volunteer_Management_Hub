@@ -264,10 +264,6 @@ const ManagerDashboard = () => {
                   <span>{volunteer.volunteerEmail}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <Phone className="w-4 h-4" />
-                  <span>{volunteer.volunteerPhone}</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <MapPin className="w-4 h-4" />
                   <span>Location: {volunteer.volunteerLocation}</span>
                 </div>
@@ -289,35 +285,8 @@ const ManagerDashboard = () => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
+              {/* Action Buttons - Only Approve and Reject */}
               <div className="flex flex-wrap gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => handleEmail(volunteer.volunteerEmail)}
-                  variant="outline"
-                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
-                >
-                  <Mail className="w-3 h-3 mr-1" />
-                  Email
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => handleCall(volunteer.volunteerPhone)}
-                  variant="outline"
-                  className="text-green-600 border-green-200 hover:bg-green-50"
-                >
-                  <Phone className="w-3 h-3 mr-1" />
-                  Call
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => handleText(volunteer.volunteerPhone)}
-                  variant="outline"
-                  className="text-purple-600 border-purple-200 hover:bg-purple-50"
-                >
-                  <MessageSquare className="w-3 h-3 mr-1" />
-                  WhatsApp
-                </Button>
                 <Button
                   size="sm"
                   onClick={() => handleApprove(volunteer.id)}
@@ -377,10 +346,6 @@ const ManagerDashboard = () => {
                   <span>{volunteer.volunteerEmail}</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <Phone className="w-4 h-4" />
-                  <span>{volunteer.volunteerPhone}</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
                   <MapPin className="w-4 h-4" />
                   <span>Location: {volunteer.volunteerLocation}</span>
                 </div>
@@ -401,6 +366,7 @@ const ManagerDashboard = () => {
                 </div>
               </div>
 
+              {/* Action Buttons - Only Email and WhatsApp (removed Call) */}
               <div className="flex flex-wrap gap-2">
                 <Button
                   size="sm"
@@ -410,15 +376,6 @@ const ManagerDashboard = () => {
                 >
                   <Mail className="w-3 h-3 mr-1" />
                   Email
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => handleCall(volunteer.volunteerPhone)}
-                  variant="outline"
-                  className="text-green-600 border-green-200 hover:bg-green-50"
-                >
-                  <Phone className="w-3 h-3 mr-1" />
-                  Call
                 </Button>
                 <Button
                   size="sm"
