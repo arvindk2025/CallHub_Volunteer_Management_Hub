@@ -1,6 +1,7 @@
+
 import { Invitation } from '../data/campaigns';
 import { emailService } from './emailService';
-import { campaigns } from '../data/campaigns';
+import { campaigns, volunteers } from '../data/campaigns';
 
 class InvitationService {
   private invitations: Invitation[] = [];
@@ -30,15 +31,30 @@ class InvitationService {
   // Send email to volunteer about the invitation
   private async sendInvitationEmail(invitation: Invitation): Promise<void> {
     try {
+      console.log('🔍 Looking for campaign and volunteer data...');
+      
       // Get campaign details
       const campaign = campaigns.find(c => c.id === invitation.campaignId);
-      if (!campaign) return;
+      if (!campaign) {
+        console.error('❌ Campaign not found for ID:', invitation.campaignId);
+        return;
+      }
+      console.log('✅ Found campaign:', campaign.name);
 
-      // Get volunteer email from localStorage (assuming it's stored with volunteer data)
-      const volunteers = JSON.parse(localStorage.getItem('volunteers') || '[]');
-      const volunteer = volunteers.find((v: any) => v.id === invitation.volunteerId);
+      // Get volunteer from imported data first, then check localStorage as fallback
+      let volunteer = volunteers.find((v: any) => v.id === invitation.volunteerId);
       
-      if (!volunteer) return;
+      if (!volunteer) {
+        console.log('🔍 Volunteer not found in imported data, checking localStorage...');
+        const storedVolunteers = JSON.parse(localStorage.getItem('volunteers') || '[]');
+        volunteer = storedVolunteers.find((v: any) => v.id === invitation.volunteerId);
+      }
+      
+      if (!volunteer) {
+        console.error('❌ Volunteer not found for ID:', invitation.volunteerId);
+        return;
+      }
+      console.log('✅ Found volunteer:', volunteer.name, volunteer.email);
 
       // Clean email address (remove +number if present)
       let cleanEmail = volunteer.email;
@@ -54,7 +70,7 @@ class InvitationService {
 
       const emailSubject = `🌟 Exclusive Invitation: Join ${campaign.name} Campaign - Earn $${hourlyRate}/hour!`;
       
-      // HTML Email Template with dummy data
+      // Create the email body with actual campaign and volunteer data
       const emailBody = `
 <!DOCTYPE html>
 <html>
@@ -74,10 +90,10 @@ class InvitationService {
     <!-- Main Content -->
     <div style="background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
         
-        <p style="font-size: 18px; margin-bottom: 20px;">Dear <strong>${volunteer.name || 'Sarah Johnson'}</strong>,</p>
+        <p style="font-size: 18px; margin-bottom: 20px;">Dear <strong>${volunteer.name}</strong>,</p>
         
         <p style="font-size: 16px; margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-left: 4px solid #667eea; border-radius: 5px;">
-            ${invitation.message || `Hey! Are you interested in this exciting campaign? ${campaign.manager} is personally approaching you for this amazing opportunity because of your exceptional skills and dedication!`}
+            ${invitation.message || `Hey ${volunteer.name}! Are you interested in this exciting campaign? ${campaign.manager} is personally approaching you for this amazing opportunity because of your exceptional skills and dedication!`}
         </p>
         
         <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 10px; margin: 25px 0;">
@@ -94,7 +110,7 @@ class InvitationService {
         
         <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 25px 0;">
             <h3 style="color: #2d5a2d; margin: 0 0 15px 0;">🎯 Why We Chose You:</h3>
-            <p style="margin: 0; color: #2d5a2d;">Based on your impressive track record and skills, we believe you're the perfect fit for this campaign. Your expertise in ${campaign.skillsRequired.slice(0, 2).join(' and ')} makes you an ideal candidate!</p>
+            <p style="margin: 0; color: #2d5a2d;">Based on your impressive track record and skills in ${(volunteer.skills || campaign.skillsRequired).slice(0, 2).join(' and ')}, we believe you're the perfect fit for this campaign!</p>
         </div>
         
         <div style="background: #fff3cd; padding: 20px; border-radius: 10px; margin: 25px 0; border: 1px solid #ffeaa7;">
@@ -152,18 +168,30 @@ class InvitationService {
 </html>
       `;
 
-      console.log('Sending personalized invitation email to:', cleanEmail);
-      console.log('Email subject:', emailSubject);
+      console.log('📧 Sending invitation email to:', cleanEmail);
+      console.log('📋 Email subject:', emailSubject);
+      console.log('👤 Volunteer name:', volunteer.name);
+      console.log('🏆 Campaign name:', campaign.name);
 
-      await emailService.sendEmail({
+      const result = await emailService.sendEmail({
         to: cleanEmail,
         subject: emailSubject,
         body: emailBody
       });
 
-      console.log('Invitation email sent successfully to:', cleanEmail);
+      if (result.success) {
+        console.log('✅ Invitation email sent successfully to:', cleanEmail);
+      } else {
+        console.error('❌ Failed to send invitation email to:', cleanEmail, result.error);
+      }
+
     } catch (error) {
-      console.error('Error sending invitation email:', error);
+      console.error('❌ Error in sendInvitationEmail:', error);
+      console.error('Error details:', {
+        campaignId: invitation.campaignId,
+        volunteerId: invitation.volunteerId,
+        message: invitation.message
+      });
     }
   }
 
@@ -171,15 +199,25 @@ class InvitationService {
   async sendBulkInvitations(campaignId: string, volunteerIds: string[], message?: string): Promise<Invitation[]> {
     const invitations: Invitation[] = [];
     
-    for (const volunteerId of volunteerIds) {
+    console.log(`📤 Starting bulk invitation process for ${volunteerIds.length} volunteers...`);
+    
+    for (let i = 0; i < volunteerIds.length; i++) {
+      const volunteerId = volunteerIds[i];
       try {
+        console.log(`📧 Sending invitation ${i + 1}/${volunteerIds.length} to volunteer ID: ${volunteerId}`);
         const invitation = await this.sendInvitation(campaignId, volunteerId, message);
         invitations.push(invitation);
+        
+        // Add a small delay between emails to avoid rate limiting
+        if (i < volunteerIds.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       } catch (error) {
-        console.error(`Failed to send invitation to volunteer ${volunteerId}:`, error);
+        console.error(`❌ Failed to send invitation to volunteer ${volunteerId}:`, error);
       }
     }
     
+    console.log(`✅ Bulk invitation process completed. Sent ${invitations.length}/${volunteerIds.length} invitations.`);
     return invitations;
   }
 
@@ -189,13 +227,11 @@ class InvitationService {
     return this.invitations.filter(inv => inv.volunteerId === volunteerId);
   }
 
-  // Get all invitations for a manager
   getManagerInvitations(): Invitation[] {
     this.loadInvitations();
     return this.invitations;
   }
 
-  // Update invitation status
   updateInvitationStatus(invitationId: string, status: 'accepted' | 'declined'): void {
     this.loadInvitations();
     const invitation = this.invitations.find(inv => inv.id === invitationId);
@@ -205,7 +241,6 @@ class InvitationService {
     }
   }
 
-  // Load invitations from localStorage
   private loadInvitations(): void {
     const stored = localStorage.getItem('invitations');
     if (stored) {
