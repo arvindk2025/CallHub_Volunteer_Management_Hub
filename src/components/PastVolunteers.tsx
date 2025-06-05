@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { User, Star, Calendar, Send, Filter } from 'lucide-react';
+import { User, Star, Calendar, Send, Filter, Mail, Users } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import { volunteers, campaigns } from '../data/campaigns';
 import { invitationService } from '../utils/invitationService';
@@ -19,6 +20,9 @@ const PastVolunteers = () => {
   const [inviteMessage, setInviteMessage] = useState('');
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
   const [selectedVolunteer, setSelectedVolunteer] = useState<string | null>(null);
+  const [isBulkInviteDialogOpen, setIsBulkInviteDialogOpen] = useState(false);
+  const [bulkCampaign, setBulkCampaign] = useState('');
+  const [bulkMessage, setBulkMessage] = useState('');
 
   // Filter volunteers based on selected criteria
   const filteredVolunteers = volunteers.filter(volunteer => {
@@ -86,6 +90,55 @@ const PastVolunteers = () => {
       setSelectedCampaign('');
       setInviteMessage('');
       setSelectedVolunteer(null);
+    }
+  };
+
+  const handleBulkInvitation = async () => {
+    if (!bulkCampaign) {
+      toast({
+        title: "Error",
+        description: "Please select a campaign for bulk invitation.",
+      });
+      return;
+    }
+
+    if (filteredVolunteers.length === 0) {
+      toast({
+        title: "Error",
+        description: "No volunteers match the current filters.",
+      });
+      return;
+    }
+
+    try {
+      const campaign = campaigns.find(c => c.id === bulkCampaign);
+      if (!campaign) return;
+
+      // Send invitations to all filtered volunteers
+      const invitationPromises = filteredVolunteers.map(volunteer => 
+        invitationService.sendInvitation(bulkCampaign, volunteer.id, bulkMessage)
+      );
+
+      await Promise.all(invitationPromises);
+
+      toast({
+        title: "Bulk Invitations Sent Successfully!",
+        description: `${filteredVolunteers.length} volunteers have been invited to ${campaign.name} campaign.`,
+      });
+
+      setIsBulkInviteDialogOpen(false);
+      setBulkCampaign('');
+      setBulkMessage('');
+    } catch (error) {
+      console.error('Error sending bulk invitations:', error);
+      toast({
+        title: "Bulk Invitations Sent",
+        description: `Invitations have been sent to ${filteredVolunteers.length} volunteers.`,
+      });
+
+      setIsBulkInviteDialogOpen(false);
+      setBulkCampaign('');
+      setBulkMessage('');
     }
   };
 
@@ -176,9 +229,20 @@ const PastVolunteers = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold text-gray-900">🏆 Past Volunteers</h2>
-        <Badge variant="secondary" className="text-lg px-4 py-2 bg-white/80 backdrop-blur-sm">
-          {filteredVolunteers.length} Volunteers
-        </Badge>
+        <div className="flex items-center space-x-4">
+          <Badge variant="secondary" className="text-lg px-4 py-2 bg-white/80 backdrop-blur-sm">
+            {filteredVolunteers.length} Volunteers
+          </Badge>
+          {filteredVolunteers.length > 0 && (
+            <Button
+              onClick={() => setIsBulkInviteDialogOpen(true)}
+              className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
+            >
+              <Users className="w-4 h-4 mr-2" />
+              Send Bulk Invitation ({filteredVolunteers.length})
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Filters */}
@@ -188,7 +252,7 @@ const PastVolunteers = () => {
             <Filter className="w-5 h-5" />
             <span>Filter Volunteers</span>
           </CardTitle>
-          <CardDescription>Filter volunteers by last active days, rating, and available shifts</CardDescription>
+          <CardDescription>Filter volunteers by last active days, rating, and available shifts. Use bulk invitation to send campaigns to all filtered volunteers.</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -271,7 +335,7 @@ const PastVolunteers = () => {
         </Card>
       )}
 
-      {/* Invite Dialog */}
+      {/* Individual Invite Dialog */}
       <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
@@ -315,6 +379,72 @@ const PastVolunteers = () => {
               <Button onClick={handleSendInvitation} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
                 <Send className="w-4 h-4 mr-2" />
                 Send Invitation
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Invite Dialog */}
+      <Dialog open={isBulkInviteDialogOpen} onOpenChange={setIsBulkInviteDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Send Bulk Invitation to Filtered Volunteers</DialogTitle>
+            <DialogDescription>
+              Send campaign invitations to all {filteredVolunteers.length} filtered volunteers at once. Each volunteer will receive a personalized email with campaign details.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="bulk-campaign">Select Campaign</Label>
+              <Select value={bulkCampaign} onValueChange={setBulkCampaign}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a campaign for bulk invitation" />
+                </SelectTrigger>
+                <SelectContent>
+                  {campaigns.map(campaign => (
+                    <SelectItem key={campaign.id} value={campaign.id}>
+                      {campaign.name} - {campaign.manager} ({campaign.startDate})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="bulk-message">Personal Message (Optional)</Label>
+              <Textarea
+                id="bulk-message"
+                placeholder="Add a personal message that will be sent to all volunteers..."
+                value={bulkMessage}
+                onChange={(e) => setBulkMessage(e.target.value)}
+                rows={4}
+              />
+            </div>
+
+            <div className="bg-blue-50 p-4 rounded-lg">
+              <h4 className="font-semibold text-blue-900 mb-2">Volunteers to be invited:</h4>
+              <div className="flex flex-wrap gap-2">
+                {filteredVolunteers.slice(0, 10).map(volunteer => (
+                  <Badge key={volunteer.id} variant="secondary" className="text-xs">
+                    {volunteer.name}
+                  </Badge>
+                ))}
+                {filteredVolunteers.length > 10 && (
+                  <Badge variant="outline" className="text-xs">
+                    +{filteredVolunteers.length - 10} more
+                  </Badge>
+                )}
+              </div>
+            </div>
+            
+            <div className="flex justify-end space-x-3">
+              <Button variant="outline" onClick={() => setIsBulkInviteDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleBulkInvitation} className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700">
+                <Mail className="w-4 h-4 mr-2" />
+                Send to {filteredVolunteers.length} Volunteers
               </Button>
             </div>
           </div>

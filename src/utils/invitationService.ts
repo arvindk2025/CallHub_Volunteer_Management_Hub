@@ -49,38 +49,64 @@ class InvitationService {
         cleanEmail = `${cleanPrefix}@${domain}`;
       }
 
-      // Calculate hourly rate (default $25/hour since hourlyRate property doesn't exist in campaign data)
-      const hourlyRate = 25; // Default $25/hour
+      // Calculate hourly rate (default $25/hour)
+      const hourlyRate = 25;
 
-      const emailSubject = `Invitation: Join ${campaign.name} Campaign`;
+      const emailSubject = `🌟 Exclusive Invitation: Join ${campaign.name} Campaign - Earn $${hourlyRate}/hour!`;
       
       const emailBody = `
-        Hi ${volunteer.name || 'there'},
+        Dear ${volunteer.name || 'Valued Volunteer'},
 
-        ${invitation.message ? invitation.message : 'You have been personally invited to join an exciting volunteer campaign!'}
+        🎉 **You've Been Personally Selected!** 🎉
 
-        **Campaign Details:**
-        📋 Campaign: ${campaign.name}
-        👨‍💼 Manager: ${campaign.manager}
-        📅 Date: ${campaign.startDate} - ${campaign.endDate}
-        🕐 Shift: ${campaign.startTime} - ${campaign.endTime}
-        📍 Location: ${campaign.location}
-        💰 Compensation: $${hourlyRate}/hour
+        ${invitation.message ? invitation.message : `Hey! Are you interested in this exciting campaign? ${campaign.manager} is personally approaching you for this amazing opportunity because of your exceptional skills and dedication!`}
 
-        **About the Campaign:**
+        ✨ **Campaign Opportunity Details:**
+        
+        🏆 **Campaign:** ${campaign.name}
+        👨‍💼 **Campaign Manager:** ${campaign.manager}
+        📅 **Campaign Period:** ${campaign.startDate} - ${campaign.endDate}
+        🕐 **Shift Timing:** ${campaign.startTime} - ${campaign.endTime}
+        📍 **Location:** ${campaign.location}
+        💰 **Compensation:** $${hourlyRate}/hour (Competitive Pay!)
+        
+        🎯 **Why We Chose You:**
+        Based on your impressive track record and skills, we believe you're the perfect fit for this campaign. Your expertise in ${campaign.skillsRequired.slice(0, 2).join(' and ')} makes you an ideal candidate!
+
+        📋 **Campaign Description:**
         ${campaign.description}
 
-        **Skills Required:** ${campaign.skillsRequired.join(', ')}
+        🔧 **Required Skills:** ${campaign.skillsRequired.join(', ')}
 
-        Are you interested in this campaign? The manager ${campaign.manager} is approaching you specifically for this opportunity.
+        💡 **What Makes This Special:**
+        ✅ Flexible scheduling within shift hours
+        ✅ Competitive hourly compensation
+        ✅ Work with an experienced team
+        ✅ Make a real impact in the community
+        ✅ Add valuable experience to your portfolio
 
-        Please log in to your volunteer dashboard to respond to this invitation.
+        🚀 **Ready to Join?**
+        This is an exclusive invitation just for you! We have limited spots available, and ${campaign.manager} specifically requested to invite you based on your previous excellent performance.
+
+        👆 **Next Steps:**
+        Please log in to your volunteer dashboard to respond to this invitation and secure your spot in this exciting campaign.
+
+        ⏰ **Don't Wait!** 
+        Great opportunities like this fill up quickly. Respond within 48 hours to guarantee your spot.
+
+        Looking forward to having you on our team!
 
         Best regards,
+        ${campaign.manager}
+        Campaign Manager
         CallHub Team
+
+        ---
+        💬 Questions? Reply to this email or contact your campaign manager directly.
+        🌐 Access your dashboard: ${window.location.origin}/volunteer-dashboard
       `;
 
-      console.log('Sending invitation email to:', cleanEmail);
+      console.log('Sending personalized invitation email to:', cleanEmail);
       console.log('Email subject:', emailSubject);
       console.log('Email body:', emailBody);
 
