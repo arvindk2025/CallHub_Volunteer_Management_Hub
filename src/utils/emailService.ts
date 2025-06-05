@@ -1,22 +1,76 @@
 
+import emailjs from '@emailjs/browser';
+
 // Email service for sending notifications
 class EmailService {
-  async sendEmail({ to, subject, body }: { to: string; subject: string; body: string }) {
-    // This would typically connect to a backend email service
-    // For demo purposes, we'll simulate with console logging
-    console.log(`Email sent to: ${to}`);
-    console.log(`Subject: ${subject}`);
-    console.log(`Body: ${body}`);
-    
-    // In a real application, this would:
-    // 1. Connect to email service like SendGrid, AWS SES, etc.
-    // 2. Send the actual email
-    // 3. Return success/failure status
-    
+  private getConfiguration() {
+    const saved = localStorage.getItem('emailjs-config');
+    if (saved) {
+      return JSON.parse(saved);
+    }
     return {
-      success: true,
-      message: 'Email sent successfully'
+      serviceId: 'YOUR_SERVICE_ID',
+      templateId: 'YOUR_TEMPLATE_ID',
+      publicKey: 'YOUR_PUBLIC_KEY'
     };
+  }
+
+  async sendEmail({ to, subject, body }: { to: string; subject: string; body: string }) {
+    try {
+      const config = this.getConfiguration();
+      
+      // Check if EmailJS is configured
+      if (config.serviceId === 'YOUR_SERVICE_ID' || !config.serviceId || !config.templateId || !config.publicKey) {
+        console.log('EmailJS not configured yet. Email content:');
+        console.log(`To: ${to}`);
+        console.log(`Subject: ${subject}`);
+        console.log(`Body: ${body}`);
+        console.log('\nTo send real emails:');
+        console.log('1. Go to Manager Dashboard > Email Configuration');
+        console.log('2. Sign up at https://www.emailjs.com/');
+        console.log('3. Create a service and template');
+        console.log('4. Enter your credentials in the Email Configuration section');
+        
+        return {
+          success: true,
+          message: 'Email logged to console (EmailJS not configured)'
+        };
+      }
+
+      // Initialize EmailJS with your public key
+      emailjs.init(config.publicKey);
+
+      // Send email using EmailJS
+      const response = await emailjs.send(
+        config.serviceId,
+        config.templateId,
+        {
+          to_email: to,
+          subject: subject,
+          message: body,
+          from_name: 'CallHub Team'
+        }
+      );
+
+      console.log('Email sent successfully via EmailJS:', response);
+      return {
+        success: true,
+        message: 'Email sent successfully via EmailJS'
+      };
+    } catch (error) {
+      console.error('Error sending email via EmailJS:', error);
+      
+      // Fallback to console logging if EmailJS fails
+      console.log('Fallback - Email content:');
+      console.log(`To: ${to}`);
+      console.log(`Subject: ${subject}`);
+      console.log(`Body: ${body}`);
+      
+      return {
+        success: false,
+        message: 'Failed to send email via EmailJS, logged to console instead'
+      };
+    }
   }
 }
 
