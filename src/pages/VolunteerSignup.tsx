@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useNavigate } from 'react-router-dom';
 import { toast } from "@/hooks/use-toast";
-import { Heart, User, Clock, MapPin, Users } from 'lucide-react';
+import { Heart, User, Clock } from 'lucide-react';
 
 const VolunteerSignup = () => {
   const [formData, setFormData] = useState({
@@ -82,27 +82,6 @@ const VolunteerSignup = () => {
           </div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Join Our Volunteer Community</h1>
           <p className="text-gray-600">Make a difference in your community and create lasting impact!</p>
-        </div>
-
-        {/* Features */}
-        <div className="px-8 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <Users className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <h3 className="font-semibold text-gray-800 text-sm">Build Community</h3>
-              <p className="text-xs text-gray-600 mt-1">Connect with like-minded people and build lasting relationships</p>
-            </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <Clock className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <h3 className="font-semibold text-gray-800 text-sm">Flexible Schedule</h3>
-              <p className="text-xs text-gray-600 mt-1">Choose shifts that work with your availability</p>
-            </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <MapPin className="w-8 h-8 text-purple-600 mx-auto mb-2" />
-              <h3 className="font-semibold text-gray-800 text-sm">Local Impact</h3>
-              <p className="text-xs text-gray-600 mt-1">Make a real difference in your local community</p>
-            </div>
-          </div>
         </div>
 
         {/* Registration Form */}
