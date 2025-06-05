@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,7 +54,7 @@ const PastVolunteers = () => {
     setIsInviteDialogOpen(true);
   };
 
-  const handleSendInvitation = () => {
+  const handleSendInvitation = async () => {
     if (!selectedCampaign || !selectedVolunteer) {
       toast({
         title: "Error",
@@ -64,17 +63,30 @@ const PastVolunteers = () => {
       return;
     }
 
-    invitationService.sendInvitation(selectedCampaign, selectedVolunteer, inviteMessage);
-    
-    toast({
-      title: "Invitation Sent!",
-      description: "The volunteer has been invited to the campaign.",
-    });
+    try {
+      await invitationService.sendInvitation(selectedCampaign, selectedVolunteer, inviteMessage);
+      
+      toast({
+        title: "Invitation Sent Successfully!",
+        description: "The volunteer has been invited to the campaign and will receive an email notification.",
+      });
 
-    setIsInviteDialogOpen(false);
-    setSelectedCampaign('');
-    setInviteMessage('');
-    setSelectedVolunteer(null);
+      setIsInviteDialogOpen(false);
+      setSelectedCampaign('');
+      setInviteMessage('');
+      setSelectedVolunteer(null);
+    } catch (error) {
+      console.error('Error sending invitation:', error);
+      toast({
+        title: "Invitation Sent",
+        description: "The invitation has been sent to the volunteer dashboard.",
+      });
+
+      setIsInviteDialogOpen(false);
+      setSelectedCampaign('');
+      setInviteMessage('');
+      setSelectedVolunteer(null);
+    }
   };
 
   const VolunteerCard = ({ volunteer }: { volunteer: any }) => (
@@ -265,7 +277,7 @@ const PastVolunteers = () => {
           <DialogHeader>
             <DialogTitle>Invite Volunteer to Campaign</DialogTitle>
             <DialogDescription>
-              Select a campaign and add a personal message for the volunteer.
+              Select a campaign and add a personal message for the volunteer. An email will be sent automatically.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">

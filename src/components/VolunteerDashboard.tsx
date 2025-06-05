@@ -23,6 +23,14 @@ const VolunteerDashboard = () => {
     // Load invitations for the current volunteer
     const volunteerInvitations = invitationService.getVolunteerInvitations(volunteerId);
     setInvitations(volunteerInvitations);
+    
+    // Refresh invitations every 5 seconds to catch new ones
+    const interval = setInterval(() => {
+      const updatedInvitations = invitationService.getVolunteerInvitations(volunteerId);
+      setInvitations(updatedInvitations);
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, [volunteerId]);
 
   // Mock data - using real campaign data
@@ -180,6 +188,9 @@ const VolunteerDashboard = () => {
     const campaign = campaigns.find(c => c.id === invitation.campaignId);
     if (!campaign) return null;
 
+    // Calculate hourly rate
+    const hourlyRate = campaign.hourlyRate || 25; // Default $25/hour if not specified
+
     return (
       <Card className="mb-6 hover:shadow-xl transition-all duration-300 border-l-4 border-l-yellow-500 bg-white/80 backdrop-blur-sm">
         <CardContent className="p-6">
@@ -195,8 +206,11 @@ const VolunteerDashboard = () => {
               <p className="text-gray-600 mb-4">{campaign.description}</p>
             </div>
             <div className="text-right">
-              <div className="bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium">
+              <div className="bg-gradient-to-r from-yellow-100 to-orange-100 text-yellow-800 px-3 py-1 rounded-full text-sm font-medium mb-2">
                 Invited {new Date(invitation.invitedDate).toLocaleDateString()}
+              </div>
+              <div className="bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+                💰 ${hourlyRate}/hour
               </div>
             </div>
           </div>
@@ -233,7 +247,7 @@ const VolunteerDashboard = () => {
               
               {invitation.message && (
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-3 rounded-lg border border-blue-200">
-                  <div className="text-sm text-gray-600 mb-1">Message from Manager</div>
+                  <div className="text-sm text-gray-600 mb-1">Personal Message from Manager</div>
                   <p className="text-sm text-gray-800">{invitation.message}</p>
                 </div>
               )}
