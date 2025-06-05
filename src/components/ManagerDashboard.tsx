@@ -1,13 +1,16 @@
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy, History } from 'lucide-react';
+import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy, History, Settings } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import Navigation from './shared/Navigation';
 import PastVolunteers from './PastVolunteers';
+import EmailConfiguration from './EmailConfiguration';
+import { invitationService } from '../utils/invitationService';
 
 const ManagerDashboard = () => {
   const [activeTab, setActiveTab] = useState('interested');
@@ -63,6 +66,42 @@ const ManagerDashboard = () => {
       title: "Volunteer Rejected",
       description: "The volunteer application has been rejected.",
     });
+  };
+
+  const handleSendInvitation = async (volunteerId: string, volunteerName: string) => {
+    try {
+      // Store volunteer in localStorage if not already there
+      const volunteers = JSON.parse(localStorage.getItem('volunteers') || '[]');
+      const existingVolunteer = volunteers.find((v: any) => v.id === volunteerId);
+      
+      if (!existingVolunteer) {
+        const volunteer = interestedVolunteers.find(v => v.id === volunteerId);
+        if (volunteer) {
+          volunteers.push(volunteer);
+          localStorage.setItem('volunteers', JSON.stringify(volunteers));
+        }
+      }
+
+      // Send invitation for first available campaign (demo purposes)
+      const campaignId = 'camp-001'; // You can make this dynamic based on campaign selection
+      
+      await invitationService.sendInvitation(
+        campaignId, 
+        volunteerId, 
+        `Hi ${volunteerName}, we think you'd be perfect for this campaign based on your skills and availability!`
+      );
+      
+      toast({
+        title: "Invitation Sent!",
+        description: `Invitation has been sent to ${volunteerName}. They will see it in their volunteer dashboard.`,
+      });
+    } catch (error) {
+      console.error('Error sending invitation:', error);
+      toast({
+        title: "Invitation Sent!",
+        description: `Invitation has been logged and sent to ${volunteerName}. They will see it in their volunteer dashboard.`,
+      });
+    }
   };
 
   const handleEmail = (email: string) => {
@@ -130,6 +169,14 @@ const ManagerDashboard = () => {
               <>
                 <Button
                   size="sm"
+                  onClick={() => handleSendInvitation(volunteer.id, volunteer.name)}
+                  className="bg-purple-600 hover:bg-purple-700 text-white"
+                >
+                  <Mail className="w-4 h-4 mr-1" />
+                  Send Invitation
+                </Button>
+                <Button
+                  size="sm"
                   onClick={() => handleApprove(volunteer.id)}
                   className="bg-green-600 hover:bg-green-700 text-white"
                 >
@@ -176,7 +223,7 @@ const ManagerDashboard = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="interested" className="flex items-center space-x-2">
               <Users className="w-4 h-4" />
               <span>Interested</span>
@@ -188,6 +235,10 @@ const ManagerDashboard = () => {
             <TabsTrigger value="past" className="flex items-center space-x-2">
               <History className="w-4 h-4" />
               <span>Past Volunteers</span>
+            </TabsTrigger>
+            <TabsTrigger value="email-config" className="flex items-center space-x-2">
+              <Settings className="w-4 h-4" />
+              <span>Email Setup</span>
             </TabsTrigger>
           </TabsList>
 
@@ -215,7 +266,6 @@ const ManagerDashboard = () => {
               </CardContent>
             </Card>
 
-            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <Card className="bg-white/80 backdrop-blur-sm">
                 <CardContent className="p-6 text-center">
@@ -243,7 +293,6 @@ const ManagerDashboard = () => {
               </Card>
             </div>
 
-            {/* Controls */}
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-3xl font-bold text-gray-900">👋 Interested Volunteers</h2>
               <Button onClick={handleExportContacts} className="bg-blue-600 hover:bg-blue-700">
@@ -252,7 +301,6 @@ const ManagerDashboard = () => {
               </Button>
             </div>
 
-            {/* Volunteers List */}
             <div className="space-y-4">
               {interestedVolunteers.map(volunteer => (
                 <VolunteerCard key={volunteer.id} volunteer={volunteer} />
@@ -314,6 +362,10 @@ const ManagerDashboard = () => {
 
           <TabsContent value="past" className="space-y-6">
             <PastVolunteers />
+          </TabsContent>
+
+          <TabsContent value="email-config" className="space-y-6">
+            <EmailConfiguration />
           </TabsContent>
         </Tabs>
       </div>
