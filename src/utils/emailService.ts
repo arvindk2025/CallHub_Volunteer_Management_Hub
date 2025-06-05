@@ -1,4 +1,27 @@
 
+// Email service for sending notifications
+class EmailService {
+  async sendEmail({ to, subject, body }: { to: string; subject: string; body: string }) {
+    // This would typically connect to a backend email service
+    // For demo purposes, we'll simulate with console logging
+    console.log(`Email sent to: ${to}`);
+    console.log(`Subject: ${subject}`);
+    console.log(`Body: ${body}`);
+    
+    // In a real application, this would:
+    // 1. Connect to email service like SendGrid, AWS SES, etc.
+    // 2. Send the actual email
+    // 3. Return success/failure status
+    
+    return {
+      success: true,
+      message: 'Email sent successfully'
+    };
+  }
+}
+
+export const emailService = new EmailService();
+
 // Email reminder service for volunteers
 export const scheduleMonthlyReminder = (email: string, name: string) => {
   // This would typically connect to a backend service

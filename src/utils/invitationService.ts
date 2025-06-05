@@ -49,8 +49,8 @@ class InvitationService {
         cleanEmail = `${cleanPrefix}@${domain}`;
       }
 
-      // Calculate hourly rate (assuming it's stored in campaign data or default)
-      const hourlyRate = campaign.hourlyRate || 25; // Default $25/hour if not specified
+      // Calculate hourly rate (default $25/hour since hourlyRate property doesn't exist in campaign data)
+      const hourlyRate = 25; // Default $25/hour
 
       const emailSubject = `Invitation: Join ${campaign.name} Campaign`;
       

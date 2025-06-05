@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -188,8 +187,8 @@ const VolunteerDashboard = () => {
     const campaign = campaigns.find(c => c.id === invitation.campaignId);
     if (!campaign) return null;
 
-    // Calculate hourly rate
-    const hourlyRate = campaign.hourlyRate || 25; // Default $25/hour if not specified
+    // Calculate hourly rate (default $25/hour since hourlyRate property doesn't exist in campaign data)
+    const hourlyRate = 25; // Default $25/hour
 
     return (
       <Card className="mb-6 hover:shadow-xl transition-all duration-300 border-l-4 border-l-yellow-500 bg-white/80 backdrop-blur-sm">
