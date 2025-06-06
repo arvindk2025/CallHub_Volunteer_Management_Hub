@@ -7,12 +7,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy, History, Settings, Phone, MapPin, Clock, Upload, Send, Filter, Star, Eye, Moon, Sun } from 'lucide-react';
+import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy, History, Settings, Phone, MapPin, Clock, Upload, Send, Filter, Star, Eye, Moon, Sun, Share2, Loader2 } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import Navigation from './shared/Navigation';
 import PastVolunteers from './PastVolunteers';
 import EmailConfiguration from './EmailConfiguration';
 import { invitationService } from '../utils/invitationService';
+import { emailService } from '../utils/emailService';
 
 const ManagerDashboard = () => {
   const [activeTab, setActiveTab] = useState('interested');
@@ -24,6 +25,7 @@ const ManagerDashboard = () => {
   const [bulkEmails, setBulkEmails] = useState('');
   const [bulkMessage, setBulkMessage] = useState('');
   const [showBulkRecruit, setShowBulkRecruit] = useState(false);
+  const [isSendingBulk, setIsSendingBulk] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(() => {
     return localStorage.getItem('theme') === 'dark';
   });
@@ -419,37 +421,215 @@ const ManagerDashboard = () => {
     });
   };
 
-  // Bulk email recruitment handler
-  const handleBulkRecruitment = () => {
+  // Enhanced bulk email sending function (same logic as past volunteers)
+  const handleSendBulkEmails = async () => {
     if (!bulkEmails.trim()) {
       toast({
-        title: "Error",
+        title: "No Email Addresses",
         description: "Please enter at least one email address.",
         variant: "destructive",
       });
       return;
     }
 
-    const emailList = bulkEmails.split('\n').filter(email => email.trim());
-    const message = bulkMessage || `Hello! We're excited to invite you to join our volunteer community. Please use this link to sign up: ${recruitmentLink}`;
+    // Parse email addresses (support both line breaks and spaces)
+    const emailList = bulkEmails
+      .split(/[\n\s,]+/)
+      .map(email => email.trim())
+      .filter(email => email && email.includes('@'));
 
-    // Simulate sending emails
-    emailList.forEach((email, index) => {
-      setTimeout(() => {
-        console.log(`Sending recruitment email to: ${email.trim()}`);
-        console.log(`Subject: Join Our Volunteer Community - Make a Difference Today!`);
-        console.log(`Message: ${message}`);
-      }, index * 500);
-    });
+    if (emailList.length === 0) {
+      toast({
+        title: "Invalid Email Addresses",
+        description: "Please enter valid email addresses.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    toast({
-      title: "Bulk Recruitment Sent!",
-      description: `Recruitment emails sent to ${emailList.length} contacts. Check console for details.`,
-    });
+    setIsSendingBulk(true);
+    
+    try {
+      console.log(`📧 Starting bulk recruitment email sending to ${emailList.length} addresses...`);
+      
+      let successCount = 0;
+      let failureCount = 0;
 
-    setBulkEmails('');
-    setBulkMessage('');
-    setShowBulkRecruit(false);
+      for (let i = 0; i < emailList.length; i++) {
+        const email = emailList[i];
+        try {
+          console.log(`📤 Sending email ${i + 1}/${emailList.length} to: ${email}`);
+          
+          // Clean email address (remove +number if present)
+          let cleanEmail = email;
+          if (cleanEmail.includes('+')) {
+            const [prefix, domain] = cleanEmail.split('@');
+            const cleanPrefix = prefix.split('+')[0];
+            cleanEmail = `${cleanPrefix}@${domain}`;
+          }
+
+          const signupUrl = `${window.location.origin}/volunteer-signup`;
+          const managerName = localStorage.getItem('managerName') || 'Campaign Manager';
+
+          const emailSubject = `🌟 Exclusive Volunteer Opportunity - Join Our Impact Team!`;
+          
+          // Use the same email template as past volunteers
+          const emailBody = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volunteer Recruitment</title>
+</head>
+<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+    
+    <!-- Header -->
+    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+        <h1 style="margin: 0; font-size: 28px;">🌟 Join Our Volunteer Community!</h1>
+        <p style="margin: 10px 0 0 0; font-size: 16px; opacity: 0.9;">Make a Difference in Your Community</p>
+    </div>
+    
+    <!-- Main Content -->
+    <div style="background: #ffffff; padding: 30px; border: 1px solid #e0e0e0; border-top: none;">
+        
+        <p style="font-size: 18px; margin-bottom: 20px;">Dear Future Volunteer,</p>
+        
+        ${bulkMessage ? `
+        <p style="font-size: 16px; margin-bottom: 25px; padding: 15px; background: #f8f9fa; border-left: 4px solid #667eea; border-radius: 5px;">
+            ${bulkMessage}
+        </p>
+        ` : ''}
+        
+        <p style="font-size: 16px; margin-bottom: 25px;">
+            We're excited to invite you to join our volunteer community! We have amazing opportunities for people who want to make a positive impact in their community.
+        </p>
+        
+        <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 10px; margin: 25px 0;">
+            <h2 style="margin: 0 0 15px 0; font-size: 22px;">✨ Why Volunteer With Us?</h2>
+            <div style="display: grid; gap: 10px;">
+                <div><strong>🤝</strong> Make meaningful connections in your community</div>
+                <div><strong>🌱</strong> Develop new skills and gain valuable experience</div>
+                <div><strong>💝</strong> Create positive change and help those in need</div>
+                <div><strong>🏆</strong> Join a supportive team of like-minded individuals</div>
+                <div><strong>📈</strong> Build your resume with volunteer experience</div>
+            </div>
+        </div>
+        
+        <div style="background: #e8f5e8; padding: 20px; border-radius: 10px; margin: 25px 0;">
+            <h3 style="color: #2d5a2d; margin: 0 0 15px 0;">🎯 What We Offer:</h3>
+            <ul style="margin: 0; padding-left: 20px; color: #2d5a2d;">
+                <li>Flexible scheduling that works with your availability</li>
+                <li>Training and support from experienced team members</li>
+                <li>Various types of volunteer opportunities</li>
+                <li>Recognition for your contributions</li>
+                <li>A welcoming and inclusive community</li>
+            </ul>
+        </div>
+        
+        <div style="text-align: center; margin: 30px 0;">
+            <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 20px; border-radius: 10px; display: inline-block;">
+                <h3 style="margin: 0 0 10px 0;">🚀 Ready to Get Started?</h3>
+                <p style="margin: 0; font-size: 16px;">Join our volunteer community today!</p>
+                <a href="${signupUrl}" style="display: inline-block; background: #ffffff; color: #11998e; padding: 12px 24px; text-decoration: none; border-radius: 25px; font-weight: bold; margin-top: 15px; transition: all 0.3s;">
+                    📝 Sign Up as Volunteer
+                </a>
+            </div>
+        </div>
+        
+        <div style="background: #d4edda; border: 1px solid #c3e6cb; padding: 20px; border-radius: 10px; margin: 25px 0;">
+            <h3 style="color: #155724; margin: 0 0 15px 0;">👆 Next Steps:</h3>
+            <ol style="margin: 0; padding-left: 20px; color: #155724;">
+                <li>Click the sign-up link above</li>
+                <li>Fill out the volunteer registration form</li>
+                <li>Wait for us to match you with suitable opportunities</li>
+                <li>Start making a difference in your community!</li>
+            </ol>
+        </div>
+        
+        <div style="background: #f8d7da; border: 1px solid #f5c6cb; padding: 15px; border-radius: 10px; margin: 25px 0; text-align: center;">
+            <p style="margin: 0; color: #721c24; font-weight: bold;">⏰ Don't Wait! Start Your Volunteer Journey Today.</p>
+            <p style="margin: 5px 0 0 0; color: #721c24;">Every moment counts when making a difference.</p>
+        </div>
+        
+    </div>
+    
+    <!-- Footer -->
+    <div style="background: #f8f9fa; padding: 25px; text-align: center; border-radius: 0 0 10px 10px; border: 1px solid #e0e0e0; border-top: none;">
+        <p style="margin: 0 0 15px 0; font-size: 16px;">We can't wait to welcome you to our volunteer family!</p>
+        <p style="margin: 0 0 20px 0;">
+            <strong>Best regards,</strong><br>
+            ${managerName}<br>
+            <em>Volunteer Coordinator</em><br>
+            <strong>CallHub Team</strong>
+        </p>
+        
+        <div style="border-top: 1px solid #dee2e6; padding-top: 20px; margin-top: 20px;">
+            <p style="margin: 0; font-size: 14px; color: #6c757d;">
+                💬 Questions? Reply to this email for more information.<br>
+                🌐 Learn more: <a href="${signupUrl}" style="color: #667eea;">Volunteer Signup</a>
+            </p>
+        </div>
+    </div>
+    
+</body>
+</html>
+          `;
+
+          const result = await emailService.sendEmail({
+            to: cleanEmail,
+            subject: emailSubject,
+            body: emailBody
+          });
+
+          if (result.success) {
+            console.log(`✅ Successfully sent email to: ${cleanEmail}`);
+            successCount++;
+          } else {
+            console.error(`❌ Failed to send email to: ${cleanEmail}`, result.error);
+            failureCount++;
+          }
+
+          // Add delay between emails to avoid rate limiting
+          if (i < emailList.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+
+        } catch (error) {
+          console.error(`❌ Error sending email to ${email}:`, error);
+          failureCount++;
+        }
+      }
+
+      // Show results
+      if (successCount > 0) {
+        toast({
+          title: "📧 Bulk Emails Sent!",
+          description: `Successfully sent ${successCount} emails${failureCount > 0 ? `, ${failureCount} failed` : ''}. Check recipients' inboxes!`,
+        });
+        
+        // Clear form on success
+        setBulkEmails('');
+        setBulkMessage('');
+        setShowBulkRecruit(false);
+      } else {
+        toast({
+          title: "Email Sending Failed",
+          description: "No emails were sent successfully. Please check your email configuration.",
+          variant: "destructive",
+        });
+      }
+
+    } catch (error) {
+      console.error('❌ Error in bulk email sending:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send bulk emails. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSendingBulk(false);
+    }
   };
 
   const VolunteerCard = ({ volunteer, isJoined = false }: { volunteer: any, isJoined?: boolean }) => {
@@ -594,6 +774,104 @@ const ManagerDashboard = () => {
       </Navigation>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
+        {/* Recruitment Link Card - Moved above tabs */}
+        <Card className={`mb-8 ${isDarkMode ? 'bg-gradient-to-r from-blue-900/80 to-purple-900/80 border-gray-700 text-white' : 'bg-gradient-to-r from-blue-500/90 to-purple-500/90 text-white border-0'} backdrop-blur-sm shadow-2xl transition-all duration-300`}>
+          <CardHeader>
+            <CardTitle className="text-white">🚀 Volunteer Recruitment Center</CardTitle>
+            <CardDescription className={`${isDarkMode ? 'text-blue-200' : 'text-blue-100'}`}>
+              Share this unique link to recruit volunteers for your campaigns and watch your team grow!
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center space-x-3">
+              <Input
+                value={recruitmentLink}
+                readOnly
+                className={`flex-1 ${isDarkMode ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400' : 'bg-white/10 border-white/20 text-white placeholder-white/60'}`}
+              />
+              <Button onClick={copyRecruitmentLink} variant="secondary" className="shadow-lg">
+                <Copy className="w-4 h-4 mr-2" />
+                Copy Link
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Bulk Recruitment Section - Moved above tabs */}
+        <Card className={`mb-8 ${isDarkMode ? 'bg-gray-800/70 border-gray-700 text-white' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
+          <CardHeader>
+            <CardTitle className={`${isDarkMode ? 'text-white' : 'text-gray-900'} flex items-center space-x-2`}>
+              <Upload className="w-5 h-5" />
+              <span>Bulk Volunteer Recruitment</span>
+            </CardTitle>
+            <CardDescription className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              Import contact lists and send volunteer signup invitations in bulk
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!showBulkRecruit ? (
+              <Button 
+                onClick={() => setShowBulkRecruit(true)}
+                className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Start Bulk Recruitment
+              </Button>
+            ) : (
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="bulk-emails" className={`${isDarkMode ? 'text-white' : 'text-gray-900'} font-medium`}>Email Addresses (one per line)</Label>
+                  <Textarea
+                    id="bulk-emails"
+                    placeholder="volunteer1@email.com&#10;volunteer2@email.com&#10;volunteer3@email.com"
+                    value={bulkEmails}
+                    onChange={(e) => setBulkEmails(e.target.value)}
+                    className={`mt-2 ${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400' : 'bg-white/80 border-gray-300'}`}
+                    rows={6}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="bulk-message" className={`${isDarkMode ? 'text-white' : 'text-gray-900'} font-medium`}>Custom Message (Optional)</Label>
+                  <Textarea
+                    id="bulk-message"
+                    placeholder="Add a personal message to your recruitment email..."
+                    value={bulkMessage}
+                    onChange={(e) => setBulkMessage(e.target.value)}
+                    className={`mt-2 ${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400' : 'bg-white/80 border-gray-300'}`}
+                    rows={3}
+                  />
+                </div>
+                <div className="flex space-x-3">
+                  <Button 
+                    onClick={handleSendBulkEmails}
+                    disabled={isSendingBulk || !bulkEmails.trim()}
+                    className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg"
+                  >
+                    {isSendingBulk ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Send Invitations
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    onClick={() => setShowBulkRecruit(false)}
+                    variant="outline"
+                    className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white hover:bg-gray-600/50' : 'bg-white/50 border-gray-300 hover:bg-white/80'}`}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className={`grid w-full grid-cols-4 ${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm border transition-all duration-300`}>
             <TabsTrigger value="interested" className={`flex items-center space-x-2 ${isDarkMode ? 'data-[state=active]:bg-gray-700/70 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800'}`}>
@@ -615,7 +893,7 @@ const ManagerDashboard = () => {
           </TabsList>
 
           <TabsContent value="interested" className="space-y-6">
-            {/* Stats Cards - Moved to the top */}
+            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
                 <CardContent className="p-6 text-center">
@@ -642,94 +920,6 @@ const ManagerDashboard = () => {
                 </CardContent>
               </Card>
             </div>
-
-            {/* Recruitment Link Card */}
-            <Card className={`mb-8 ${isDarkMode ? 'bg-gradient-to-r from-blue-900/80 to-purple-900/80 border-gray-700 text-white' : 'bg-gradient-to-r from-blue-500/90 to-purple-500/90 text-white border-0'} backdrop-blur-sm shadow-2xl transition-all duration-300`}>
-              <CardHeader>
-                <CardTitle className="text-white">🚀 Volunteer Recruitment Center</CardTitle>
-                <CardDescription className={`${isDarkMode ? 'text-blue-200' : 'text-blue-100'}`}>
-                  Share this unique link to recruit volunteers for your campaigns and watch your team grow!
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center space-x-3">
-                  <Input
-                    value={recruitmentLink}
-                    readOnly
-                    className={`flex-1 ${isDarkMode ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400' : 'bg-white/10 border-white/20 text-white placeholder-white/60'}`}
-                  />
-                  <Button onClick={copyRecruitmentLink} variant="secondary" className="shadow-lg">
-                    <Copy className="w-4 h-4 mr-2" />
-                    Copy Link
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Bulk Recruitment Section */}
-            <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700 text-white' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
-              <CardHeader>
-                <CardTitle className={`${isDarkMode ? 'text-white' : 'text-gray-900'} flex items-center space-x-2`}>
-                  <Upload className="w-5 h-5" />
-                  <span>Bulk Volunteer Recruitment</span>
-                </CardTitle>
-                <CardDescription className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                  Import contact lists and send volunteer signup invitations in bulk
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {!showBulkRecruit ? (
-                  <Button 
-                    onClick={() => setShowBulkRecruit(true)}
-                    className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg"
-                  >
-                    <Send className="w-4 h-4 mr-2" />
-                    Start Bulk Recruitment
-                  </Button>
-                ) : (
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="bulk-emails" className={`${isDarkMode ? 'text-white' : 'text-gray-900'} font-medium`}>Email Addresses (one per line)</Label>
-                      <Textarea
-                        id="bulk-emails"
-                        placeholder="volunteer1@email.com&#10;volunteer2@email.com&#10;volunteer3@email.com"
-                        value={bulkEmails}
-                        onChange={(e) => setBulkEmails(e.target.value)}
-                        className={`mt-2 ${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400' : 'bg-white/80 border-gray-300'}`}
-                        rows={6}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="bulk-message" className={`${isDarkMode ? 'text-white' : 'text-gray-900'} font-medium`}>Custom Message (Optional)</Label>
-                      <Textarea
-                        id="bulk-message"
-                        placeholder="Add a personal message to your recruitment email..."
-                        value={bulkMessage}
-                        onChange={(e) => setBulkMessage(e.target.value)}
-                        className={`mt-2 ${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400' : 'bg-white/80 border-gray-300'}`}
-                        rows={3}
-                      />
-                    </div>
-                    <div className="flex space-x-3">
-                      <Button 
-                        onClick={handleBulkRecruitment}
-                        className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white shadow-lg"
-                      >
-                        <Send className="w-4 h-4 mr-2" />
-                        Send Invitations
-                      </Button>
-                      <Button 
-                        onClick={() => setShowBulkRecruit(false)}
-                        variant="outline"
-                        className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white hover:bg-gray-600/50' : 'bg-white/50 border-gray-300 hover:bg-white/80'}`}
-                      >
-                        Cancel
-                      </Button>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
 
             {/* Enhanced Filters */}
             <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
