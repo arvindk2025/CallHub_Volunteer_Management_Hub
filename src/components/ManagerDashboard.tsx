@@ -57,7 +57,7 @@ const ManagerDashboard = () => {
     }
   }, [isDarkMode]);
 
-  // Enhanced mock data for interested volunteers with ratings and locations
+  // Enhanced mock data for interested volunteers with more entries
   const mockInterestedVolunteers = [
     {
       id: 'vol-001',
@@ -162,6 +162,97 @@ const ManagerDashboard = () => {
       appliedDate: '2024-05-16T14:20:00.000Z',
       rating: 4.8,
       totalCampaigns: 11
+    },
+    {
+      id: 'vol-009',
+      volunteerName: 'Blake Wilson',
+      volunteerEmail: 'blake.wilson@email.com',
+      volunteerPhone: '+1 (555) 654-3210',
+      volunteerLocation: 'Georgia, 30309',
+      availableShifts: ['Afternoon'],
+      campaignName: 'Senior Care Assistance',
+      volunteerSkills: 'Healthcare, Compassion',
+      appliedDate: '2024-05-17T11:00:00.000Z',
+      rating: 4.6,
+      totalCampaigns: 9
+    },
+    {
+      id: 'vol-010',
+      volunteerName: 'Quinn Parker',
+      volunteerEmail: 'quinn.parker@email.com',
+      volunteerPhone: '+1 (555) 876-5432',
+      volunteerLocation: 'Colorado, 80202',
+      availableShifts: ['Morning', 'Evening'],
+      campaignName: 'Animal Shelter Support',
+      volunteerSkills: 'Animal Care, Organization',
+      appliedDate: '2024-05-18T09:30:00.000Z',
+      rating: 4.4,
+      totalCampaigns: 13
+    },
+    {
+      id: 'vol-011',
+      volunteerName: 'Harper Davis',
+      volunteerEmail: 'harper.davis@email.com',
+      volunteerPhone: '+1 (555) 432-1098',
+      volunteerLocation: 'Oregon, 97201',
+      availableShifts: ['Afternoon'],
+      campaignName: 'Homeless Outreach',
+      volunteerSkills: 'Social Work, Communication',
+      appliedDate: '2024-05-19T13:15:00.000Z',
+      rating: 4.7,
+      totalCampaigns: 8
+    },
+    {
+      id: 'vol-012',
+      volunteerName: 'Sage Martinez',
+      volunteerEmail: 'sage.martinez@email.com',
+      volunteerPhone: '+1 (555) 210-9876',
+      volunteerLocation: 'Nevada, 89101',
+      availableShifts: ['Evening'],
+      campaignName: 'Youth Sports Program',
+      volunteerSkills: 'Sports Coaching, Mentoring',
+      appliedDate: '2024-05-20T16:00:00.000Z',
+      rating: 4.5,
+      totalCampaigns: 6
+    },
+    {
+      id: 'vol-013',
+      volunteerName: 'River Johnson',
+      volunteerEmail: 'river.johnson@email.com',
+      volunteerPhone: '+1 (555) 098-7654',
+      volunteerLocation: 'Montana, 59701',
+      availableShifts: ['Morning'],
+      campaignName: 'Environmental Conservation',
+      volunteerSkills: 'Environmental Science, Research',
+      appliedDate: '2024-05-21T08:45:00.000Z',
+      rating: 4.8,
+      totalCampaigns: 14
+    },
+    {
+      id: 'vol-014',
+      volunteerName: 'Phoenix Lee',
+      volunteerEmail: 'phoenix.lee@email.com',
+      volunteerPhone: '+1 (555) 765-4321',
+      volunteerLocation: 'Utah, 84101',
+      availableShifts: ['Afternoon', 'Evening'],
+      campaignName: 'Literacy Program',
+      volunteerSkills: 'Education, Tutoring',
+      appliedDate: '2024-05-22T15:30:00.000Z',
+      rating: 4.6,
+      totalCampaigns: 11
+    },
+    {
+      id: 'vol-015',
+      volunteerName: 'Dakota Brown',
+      volunteerEmail: 'dakota.brown@email.com',
+      volunteerPhone: '+1 (555) 543-2109',
+      volunteerLocation: 'Wisconsin, 53202',
+      availableShifts: ['Morning'],
+      campaignName: 'Community Garden',
+      volunteerSkills: 'Gardening, Project Management',
+      appliedDate: '2024-05-23T10:15:00.000Z',
+      rating: 4.3,
+      totalCampaigns: 7
     }
   ];
 
@@ -876,7 +967,7 @@ const ManagerDashboard = () => {
           <TabsList className={`grid w-full grid-cols-4 ${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm border transition-all duration-300`}>
             <TabsTrigger value="interested" className={`flex items-center space-x-2 ${isDarkMode ? 'data-[state=active]:bg-gray-700/70 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800'}`}>
               <Users className="w-4 h-4" />
-              <span>Interested</span>
+              <span>Interested Volunteers</span>
             </TabsTrigger>
             <TabsTrigger value="joined" className={`flex items-center space-x-2 ${isDarkMode ? 'data-[state=active]:bg-gray-700/70 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800'}`}>
               <UserCheck className="w-4 h-4" />
