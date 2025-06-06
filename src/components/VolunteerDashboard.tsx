@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,8 +20,58 @@ const VolunteerDashboard = () => {
   const volunteerId = localStorage.getItem('volunteerId') || 'vol-001';
   const volunteerName = localStorage.getItem('volunteerName') || 'Volunteer User';
 
-  // Mock invitation data for demo purposes
-  const mockInvitations: Invitation[] = [
+  // Enhanced mock data with proper dates and times
+  const extendedCampaigns = [
+    ...campaigns.slice(0, 6),
+    {
+      id: 'camp-ext-001',
+      name: 'Digital Literacy Workshop',
+      description: 'Teaching seniors how to use smartphones and computers for daily tasks.',
+      category: 'Education',
+      manager: 'Sarah Wilson',
+      startDate: '2024-06-10',
+      endDate: '2024-06-12',
+      startTime: '09:00',
+      endTime: '17:00',
+      location: 'Community Center, Downtown',
+      skillsRequired: ['Teaching', 'Patience', 'Tech Skills'],
+      volunteersNeeded: 8,
+      volunteersRegistered: 3
+    },
+    {
+      id: 'camp-ext-002',
+      name: 'Pet Adoption Fair',
+      description: 'Help organize and manage a pet adoption event to find homes for rescued animals.',
+      category: 'Animal Welfare',
+      manager: 'Mike Chen',
+      startDate: '2024-06-08',
+      endDate: '2024-06-08',
+      startTime: '10:00',
+      endTime: '16:00',
+      location: 'City Park, North Plaza',
+      skillsRequired: ['Animal Care', 'Event Management', 'Customer Service'],
+      volunteersNeeded: 15,
+      volunteersRegistered: 11
+    },
+    {
+      id: 'camp-ext-003',
+      name: 'River Cleanup Initiative',
+      description: 'Join us in cleaning up the riverbank and removing plastic waste from the water.',
+      category: 'Environment',
+      manager: 'Elena Rodriguez',
+      startDate: '2024-06-15',
+      endDate: '2024-06-15',
+      startTime: '07:00',
+      endTime: '12:00',
+      location: 'Riverside Park, East Side',
+      skillsRequired: ['Physical Labor', 'Environmental Awareness'],
+      volunteersNeeded: 25,
+      volunteersRegistered: 18
+    }
+  ];
+
+  // Enhanced mock invitations
+  const enhancedMockInvitations: Invitation[] = [
     {
       id: 'inv-001',
       campaignId: 'camp-001',
@@ -46,6 +95,22 @@ const VolunteerDashboard = () => {
       invitedDate: '2024-05-13T09:15:00.000Z',
       status: 'accepted',
       message: 'We noticed your teaching and mentoring skills and think you would be an amazing addition to our youth mentorship program. Hope you can join us!'
+    },
+    {
+      id: 'inv-004',
+      campaignId: 'camp-ext-001',
+      volunteerId: volunteerId,
+      invitedDate: '2024-05-16T11:00:00.000Z',
+      status: 'pending',
+      message: 'Your tech skills would be incredibly valuable for our digital literacy workshop. Help us bridge the digital divide!'
+    },
+    {
+      id: 'inv-005',
+      campaignId: 'camp-ext-002',
+      volunteerId: volunteerId,
+      invitedDate: '2024-05-12T16:00:00.000Z',
+      status: 'pending',
+      message: 'We need volunteers with great people skills for our pet adoption fair. Your communication abilities would be perfect!'
     }
   ];
 
@@ -53,9 +118,9 @@ const VolunteerDashboard = () => {
   useEffect(() => {
     const storedJoinedCampaigns = JSON.parse(localStorage.getItem(`joinedCampaigns_${volunteerId}`) || '[]');
     
-    // If no stored campaigns, use default mock data
+    // If no stored campaigns, use enhanced mock data
     if (storedJoinedCampaigns.length === 0) {
-      const defaultJoined = campaigns.slice(6, 8).map(campaign => ({
+      const defaultJoined = [...campaigns.slice(6, 8), extendedCampaigns[0], extendedCampaigns[2]].map(campaign => ({
         ...campaign,
         joinedDate: '2024-06-10',
         startsIn: calculateDaysUntil(campaign.startDate)
@@ -68,12 +133,12 @@ const VolunteerDashboard = () => {
   }, [volunteerId]);
 
   useEffect(() => {
-    // Load invitations for the current volunteer or use mock data for demo
+    // Load invitations for the current volunteer or use enhanced mock data for demo
     const volunteerInvitations = invitationService.getVolunteerInvitations(volunteerId);
     
-    // If no stored invitations, use mock data for demo
+    // If no stored invitations, use enhanced mock data for demo
     if (volunteerInvitations.length === 0) {
-      setInvitations(mockInvitations);
+      setInvitations(enhancedMockInvitations);
     } else {
       setInvitations(volunteerInvitations);
     }
@@ -89,8 +154,31 @@ const VolunteerDashboard = () => {
     return () => clearInterval(interval);
   }, [volunteerId]);
 
-  // Mock data - using real campaign data
-  const availableCampaigns = campaigns.slice(0, 6).map(campaign => ({
+  // Show achievement toast randomly
+  useEffect(() => {
+    const showRandomAchievement = () => {
+      const achievements = [
+        { title: "🥉 Bronze Achievement!", description: "You're making a difference in your community!" },
+        { title: "🥈 Silver Badge Unlocked!", description: "Amazing dedication! Keep up the great work!" },
+        { title: "🥇 Gold Status Achieved!", description: "You're a volunteering champion! Congratulations!" },
+        { title: "⭐ Star Volunteer!", description: "Your impact is truly inspiring!" }
+      ];
+      
+      const randomAchievement = achievements[Math.floor(Math.random() * achievements.length)];
+      
+      setTimeout(() => {
+        toast({
+          title: randomAchievement.title,
+          description: randomAchievement.description,
+        });
+      }, Math.random() * 10000 + 5000); // Random delay between 5-15 seconds
+    };
+
+    showRandomAchievement();
+  }, [activeTab]);
+
+  // Enhanced available campaigns with better dates
+  const availableCampaigns = extendedCampaigns.map(campaign => ({
     ...campaign,
     startsIn: calculateDaysUntil(campaign.startDate)
   }));
@@ -107,13 +195,17 @@ const VolunteerDashboard = () => {
     return `${diffDays} days`;
   }
 
-  // Real-time countdown component
-  const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
+  // Enhanced real-time countdown component
+  const CountdownTimer = ({ targetDate, targetTime }: { targetDate: string, targetTime: string }) => {
     const [timeLeft, setTimeLeft] = useState('');
 
     useEffect(() => {
       const calculateTimeLeft = () => {
+        // Combine date and time for accurate countdown
+        const [hours, minutes] = targetTime.split(':');
         const target = new Date(targetDate);
+        target.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        
         const now = new Date();
         const difference = target.getTime() - now.getTime();
 
@@ -121,34 +213,37 @@ const VolunteerDashboard = () => {
           const days = Math.floor(difference / (1000 * 60 * 60 * 24));
           const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
           const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((difference % (1000 * 60)) / 1000);
           
           if (days > 0) {
             setTimeLeft(`${days}d ${hours}h ${minutes}m`);
           } else if (hours > 0) {
-            setTimeLeft(`${hours}h ${minutes}m`);
+            setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+          } else if (minutes > 0) {
+            setTimeLeft(`${minutes}m ${seconds}s`);
           } else {
-            setTimeLeft(`${minutes}m`);
+            setTimeLeft(`${seconds}s`);
           }
         } else {
-          setTimeLeft('Started');
+          setTimeLeft('Campaign Started');
         }
       };
 
       calculateTimeLeft();
-      const interval = setInterval(calculateTimeLeft, 60000); // Update every minute
+      const interval = setInterval(calculateTimeLeft, 1000); // Update every second
 
       return () => clearInterval(interval);
-    }, [targetDate]);
+    }, [targetDate, targetTime]);
 
     return (
-      <div className="flex items-center space-x-2 bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium">
+      <div className="flex items-center space-x-2 bg-gradient-to-r from-orange-100 to-red-100 text-orange-800 px-3 py-1 rounded-full text-sm font-medium animate-pulse">
         <Timer className="w-4 h-4" />
         <span>{timeLeft}</span>
       </div>
     );
   };
 
-  // Badge system logic
+  // Enhanced badge system logic with dynamic updates
   const getBadgeInfo = () => {
     const joinedCount = joinedCampaigns.length;
     
@@ -184,8 +279,9 @@ const VolunteerDashboard = () => {
 
   const badgeInfo = getBadgeInfo();
 
+  // ... keep existing code (handleShowInterest function)
   const handleShowInterest = (campaignId: string) => {
-    const campaign = campaigns.find(c => c.id === campaignId);
+    const campaign = [...campaigns, ...extendedCampaigns].find(c => c.id === campaignId);
     if (!campaign) return;
 
     // Create interest request for the specific manager
@@ -237,8 +333,8 @@ const VolunteerDashboard = () => {
     const invitation = invitations.find(inv => inv.id === invitationId);
     
     if (status === 'accepted' && invitation) {
-      // Find the campaign details
-      const campaign = campaigns.find(c => c.id === invitation.campaignId);
+      // Find the campaign details from both campaigns arrays
+      const campaign = [...campaigns, ...extendedCampaigns].find(c => c.id === invitation.campaignId);
       if (campaign) {
         // Add to joined campaigns
         const newJoinedCampaign = {
@@ -251,6 +347,17 @@ const VolunteerDashboard = () => {
         const updatedJoinedCampaigns = [...joinedCampaigns, newJoinedCampaign];
         setJoinedCampaigns(updatedJoinedCampaigns);
         localStorage.setItem(`joinedCampaigns_${volunteerId}`, JSON.stringify(updatedJoinedCampaigns));
+
+        // Check if badge should be upgraded
+        const newBadgeInfo = getBadgeInfo();
+        if (newBadgeInfo.badge !== badgeInfo.badge) {
+          setTimeout(() => {
+            toast({
+              title: `🎉 ${newBadgeInfo.badge} Badge Achieved!`,
+              description: `Congratulations! You've been promoted to ${newBadgeInfo.badge} volunteer status!`,
+            });
+          }, 1000);
+        }
       }
     }
     
@@ -270,18 +377,19 @@ const VolunteerDashboard = () => {
 
   if (showProfile) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
         <Navigation title="Volunteer Dashboard">
           <Button
             variant="outline"
             onClick={() => setShowProfile(false)}
-            className="flex items-center space-x-2 hover:bg-blue-50 border-blue-200"
+            className="flex items-center space-x-2 hover:bg-blue-50 border-blue-200 bg-white/20 backdrop-blur-sm"
           >
             <User className="w-4 h-4" />
             <span>Back to Dashboard</span>
           </Button>
         </Navigation>
-        <div className="py-8">
+        <div className="py-8 relative z-10">
           <VolunteerProfile />
         </div>
       </div>
@@ -289,7 +397,7 @@ const VolunteerDashboard = () => {
   }
 
   const CampaignCard = ({ campaign, isJoined = false }: { campaign: any, isJoined?: boolean }) => (
-    <Card className="group hover:shadow-2xl transition-all duration-500 border-l-4 border-l-blue-500 bg-white/90 backdrop-blur-sm hover:-translate-y-2 hover:border-l-purple-500">
+    <Card className="group hover:shadow-2xl transition-all duration-500 border-l-4 border-l-blue-500 bg-white/95 backdrop-blur-sm hover:-translate-y-2 hover:border-l-purple-500 hover:bg-white">
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div className="flex-1">
@@ -298,10 +406,7 @@ const VolunteerDashboard = () => {
             <p className="text-gray-600 mb-4 leading-relaxed">{campaign.description}</p>
           </div>
           <div className="text-right space-y-2">
-            <div className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-              Starts in {campaign.startsIn}
-            </div>
-            <CountdownTimer targetDate={campaign.startDate} />
+            <CountdownTimer targetDate={campaign.startDate} targetTime={campaign.startTime} />
           </div>
         </div>
 
@@ -375,14 +480,15 @@ const VolunteerDashboard = () => {
     </Card>
   );
 
+  // ... keep existing code (InvitationCard component)
   const InvitationCard = ({ invitation }: { invitation: Invitation }) => {
-    const campaign = campaigns.find(c => c.id === invitation.campaignId);
+    const campaign = [...campaigns, ...extendedCampaigns].find(c => c.id === invitation.campaignId);
     if (!campaign) return null;
 
     const hourlyRate = 25;
 
     return (
-      <Card className="group hover:shadow-2xl transition-all duration-500 border-l-4 border-l-yellow-500 bg-white/90 backdrop-blur-sm hover:-translate-y-2">
+      <Card className="group hover:shadow-2xl transition-all duration-500 border-l-4 border-l-yellow-500 bg-white/95 backdrop-blur-sm hover:-translate-y-2">
         <CardContent className="p-6">
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1">
@@ -468,11 +574,12 @@ const VolunteerDashboard = () => {
     );
   };
 
+  // ... keep existing code (BadgeCard component)
   const BadgeCard = () => {
     const IconComponent = badgeInfo.icon;
     
     return (
-      <Card className="mb-6 bg-gradient-to-r from-white via-blue-50 to-purple-50 border-2 border-blue-200 shadow-xl hover:shadow-2xl transition-all duration-500">
+      <Card className="mb-6 bg-white/95 backdrop-blur-sm border-2 border-blue-200 shadow-xl hover:shadow-2xl transition-all duration-500">
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
@@ -512,24 +619,33 @@ const VolunteerDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
+      {/* Enhanced animated background */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%239C92AC" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="4"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 animate-gradient"></div>
+      
+      {/* Floating elements */}
+      <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-float"></div>
+      <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-float delay-1000"></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-indigo-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
+
       <Navigation title="Volunteer Dashboard">
         <Button
           variant="outline"
           onClick={() => setShowProfile(true)}
-          className="flex items-center space-x-2 hover:bg-blue-50 border-blue-200 hover:border-blue-300 transition-all duration-300"
+          className="flex items-center space-x-2 hover:bg-blue-50 border-blue-200 hover:border-blue-300 transition-all duration-300 bg-white/20 backdrop-blur-sm"
         >
           <Settings className="w-4 h-4" />
           <span>Edit Profile</span>
         </Button>
       </Navigation>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         {/* Badge System */}
         <BadgeCard />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-white/80 backdrop-blur-sm shadow-lg rounded-xl p-2">
+          <TabsList className="grid w-full grid-cols-3 bg-white/90 backdrop-blur-sm shadow-lg rounded-xl p-2">
             <TabsTrigger value="available" className="flex items-center space-x-2 rounded-lg transition-all duration-300">
               <Calendar className="w-4 h-4" />
               <span>Available Campaigns</span>
@@ -546,10 +662,10 @@ const VolunteerDashboard = () => {
 
           <TabsContent value="available" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-bold text-gray-900 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h2 className="text-3xl font-bold text-white bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                 🌟 Available Campaigns
               </h2>
-              <Badge variant="secondary" className="text-lg px-4 py-2 bg-white/80 backdrop-blur-sm shadow-lg">
+              <Badge variant="secondary" className="text-lg px-4 py-2 bg-white/90 backdrop-blur-sm shadow-lg">
                 {availableCampaigns.length} Available
               </Badge>
             </div>
@@ -563,10 +679,10 @@ const VolunteerDashboard = () => {
 
           <TabsContent value="invited" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-bold text-gray-900 bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
+              <h2 className="text-3xl font-bold text-white bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
                 📧 Campaign Invitations
               </h2>
-              <Badge variant="secondary" className="text-lg px-4 py-2 bg-white/80 backdrop-blur-sm shadow-lg">
+              <Badge variant="secondary" className="text-lg px-4 py-2 bg-white/90 backdrop-blur-sm shadow-lg">
                 {invitations.filter(inv => inv.status === 'pending').length} Pending
               </Badge>
             </div>
@@ -578,7 +694,7 @@ const VolunteerDashboard = () => {
             </div>
 
             {invitations.length === 0 && (
-              <Card className="bg-white/80 backdrop-blur-sm shadow-xl">
+              <Card className="bg-white/90 backdrop-blur-sm shadow-xl">
                 <CardContent className="text-center py-16">
                   <div className="text-6xl mb-4 animate-bounce">📬</div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -601,10 +717,10 @@ const VolunteerDashboard = () => {
 
           <TabsContent value="joined" className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-3xl font-bold text-gray-900 bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+              <h2 className="text-3xl font-bold text-white bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">
                 ✅ Your Campaigns
               </h2>
-              <Badge variant="secondary" className="text-lg px-4 py-2 bg-white/80 backdrop-blur-sm shadow-lg">
+              <Badge variant="secondary" className="text-lg px-4 py-2 bg-white/90 backdrop-blur-sm shadow-lg">
                 {joinedCampaigns.length} Joined
               </Badge>
             </div>
@@ -616,7 +732,7 @@ const VolunteerDashboard = () => {
             </div>
 
             {joinedCampaigns.length === 0 && (
-              <Card className="bg-white/80 backdrop-blur-sm shadow-xl">
+              <Card className="bg-white/90 backdrop-blur-sm shadow-xl">
                 <CardContent className="text-center py-16">
                   <div className="text-6xl mb-4 animate-pulse">🎯</div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
