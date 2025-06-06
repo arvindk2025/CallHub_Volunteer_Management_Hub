@@ -615,6 +615,34 @@ const ManagerDashboard = () => {
           </TabsList>
 
           <TabsContent value="interested" className="space-y-6">
+            {/* Stats Cards - Moved to the top */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
+                <CardContent className="p-6 text-center">
+                  <div className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    {filteredInterestedVolunteers.length}
+                  </div>
+                  <div className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Interested Volunteers</div>
+                </CardContent>
+              </Card>
+              <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
+                <CardContent className="p-6 text-center">
+                  <div className="text-3xl font-bold text-green-500 mb-2">
+                    {Math.round((filteredJoinedVolunteers.length / (filteredInterestedVolunteers.length + filteredJoinedVolunteers.length)) * 100) || 0}%
+                  </div>
+                  <div className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Conversion Rate</div>
+                </CardContent>
+              </Card>
+              <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
+                <CardContent className="p-6 text-center">
+                  <div className="text-3xl font-bold text-purple-500 mb-2">
+                    {filteredInterestedVolunteers.length + filteredJoinedVolunteers.length}
+                  </div>
+                  <div className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Total Volunteers</div>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Recruitment Link Card */}
             <Card className={`mb-8 ${isDarkMode ? 'bg-gradient-to-r from-blue-900/80 to-purple-900/80 border-gray-700 text-white' : 'bg-gradient-to-r from-blue-500/90 to-purple-500/90 text-white border-0'} backdrop-blur-sm shadow-2xl transition-all duration-300`}>
               <CardHeader>
@@ -702,34 +730,6 @@ const ManagerDashboard = () => {
                 )}
               </CardContent>
             </Card>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
-                <CardContent className="p-6 text-center">
-                  <div className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                    {filteredInterestedVolunteers.length}
-                  </div>
-                  <div className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Interested Volunteers</div>
-                </CardContent>
-              </Card>
-              <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
-                <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-green-500 mb-2">
-                    {Math.round((filteredJoinedVolunteers.length / (filteredInterestedVolunteers.length + filteredJoinedVolunteers.length)) * 100) || 0}%
-                  </div>
-                  <div className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Conversion Rate</div>
-                </CardContent>
-              </Card>
-              <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
-                <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-purple-500 mb-2">
-                    {filteredInterestedVolunteers.length + filteredJoinedVolunteers.length}
-                  </div>
-                  <div className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Total Volunteers</div>
-                </CardContent>
-              </Card>
-            </div>
 
             {/* Enhanced Filters */}
             <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
