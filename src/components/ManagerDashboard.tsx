@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy, History, Settings, Phone, MapPin, Clock, Upload, Send, Filter, Star, Eye } from 'lucide-react';
+import { Users, UserCheck, Download, Mail, MessageSquare, Check, X, Copy, History, Settings, Phone, MapPin, Clock, Upload, Send, Filter, Star, Eye, Moon, Sun } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 import Navigation from './shared/Navigation';
 import PastVolunteers from './PastVolunteers';
@@ -24,10 +24,36 @@ const ManagerDashboard = () => {
   const [bulkEmails, setBulkEmails] = useState('');
   const [bulkMessage, setBulkMessage] = useState('');
   const [showBulkRecruit, setShowBulkRecruit] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    return localStorage.getItem('theme') === 'dark';
+  });
   
   const managerId = localStorage.getItem('managerId') || 'default';
   const managerName = localStorage.getItem('managerName') || 'Sarah Johnson';
   const recruitmentLink = `${window.location.origin}/volunteer-signup?ref=${managerId}`;
+
+  // Toggle theme function
+  const toggleTheme = () => {
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+    localStorage.setItem('theme', newTheme ? 'dark' : 'light');
+    
+    // Apply theme to document
+    if (newTheme) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
+
+  // Apply theme on mount
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
 
   // Enhanced mock data for interested volunteers with ratings and locations
   const mockInterestedVolunteers = [
@@ -443,7 +469,7 @@ const ManagerDashboard = () => {
     };
 
     return (
-      <Card className="bg-white/90 backdrop-blur-sm rounded-lg shadow-lg border border-white/20 hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
+      <Card className={`${isDarkMode ? 'bg-gray-800/90 border-gray-700/50 text-white' : 'bg-white/95 border-gray-200'} backdrop-blur-sm rounded-lg shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1`}>
         <CardContent className="p-6">
           <div className="flex items-start space-x-4">
             {/* Avatar */}
@@ -454,29 +480,29 @@ const ManagerDashboard = () => {
             {/* Content */}
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-semibold text-gray-900">{volunteer.volunteerName}</h3>
+                <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{volunteer.volunteerName}</h3>
                 <div className="flex items-center space-x-1 bg-gradient-to-r from-yellow-100 to-orange-100 px-2 py-1 rounded-full">
                   <Star className="w-4 h-4 text-yellow-500 fill-current" />
                   <span className="text-sm font-medium text-yellow-700">{volunteer.rating?.toFixed(1) || 'N/A'}</span>
                 </div>
               </div>
               
-              <p className="text-sm text-gray-600 mb-1">{volunteer.campaignName}</p>
-              <p className="text-xs text-gray-500 mb-4">
+              <p className={`text-sm mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{volunteer.campaignName}</p>
+              <p className={`text-xs mb-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 Applied: {new Date(volunteer.appliedDate).toLocaleDateString()}
               </p>
 
               {/* Contact Info */}
               <div className="space-y-2 mb-4">
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className={`flex items-center space-x-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   <Mail className="w-4 h-4 text-blue-500" />
                   <span>{volunteer.volunteerEmail}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className={`flex items-center space-x-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   <MapPin className="w-4 h-4 text-green-500" />
                   <span>{volunteer.volunteerLocation}</span>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <div className={`flex items-center space-x-2 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   <Clock className="w-4 h-4 text-purple-500" />
                   <span>Available: {Array.isArray(volunteer.availableShifts) ? volunteer.availableShifts.join(', ') : volunteer.availableShifts}</span>
                 </div>
@@ -484,10 +510,10 @@ const ManagerDashboard = () => {
 
               {/* Skills */}
               <div className="mb-4">
-                <p className="text-sm font-medium text-gray-700 mb-2">Skills:</p>
+                <p className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Skills:</p>
                 <div className="flex flex-wrap gap-1">
                   {volunteer.volunteerSkills.split(', ').map((skill: string, index: number) => (
-                    <Badge key={index} variant="secondary" className="text-xs px-2 py-1 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-0">
+                    <Badge key={index} variant="secondary" className={`text-xs px-2 py-1 bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-0 ${isDarkMode ? 'from-blue-900/50 to-purple-900/50 text-blue-200' : ''}`}>
                       {skill.trim()}
                     </Badge>
                   ))}
@@ -521,7 +547,7 @@ const ManagerDashboard = () => {
                       size="sm"
                       onClick={() => handleEmail(volunteer.volunteerEmail)}
                       variant="outline"
-                      className="text-blue-600 border-blue-200 hover:bg-blue-50 bg-white/80"
+                      className={`text-blue-600 border-blue-200 hover:bg-blue-50 ${isDarkMode ? 'bg-gray-800/80 border-gray-600 text-blue-400' : 'bg-white/80'}`}
                     >
                       <Mail className="w-3 h-3 mr-1" />
                       Email
@@ -530,7 +556,7 @@ const ManagerDashboard = () => {
                       size="sm"
                       onClick={() => handleText(volunteer.volunteerPhone)}
                       variant="outline"
-                      className="text-purple-600 border-purple-200 hover:bg-purple-50 bg-white/80"
+                      className={`text-purple-600 border-purple-200 hover:bg-purple-50 ${isDarkMode ? 'bg-gray-800/80 border-gray-600 text-purple-400' : 'bg-white/80'}`}
                     >
                       <MessageSquare className="w-3 h-3 mr-1" />
                       WhatsApp
@@ -546,34 +572,43 @@ const ManagerDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 relative overflow-hidden">
+    <div className={`min-h-screen transition-all duration-500 ${isDarkMode ? 'bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900' : 'bg-gradient-to-br from-blue-50 via-indigo-100 to-purple-200'} relative overflow-hidden`}>
       {/* Enhanced animated background */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10"></div>
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20 animate-gradient"></div>
+      <div className={`absolute inset-0 ${isDarkMode ? 'bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10' : 'bg-gradient-to-r from-blue-300/20 via-purple-300/20 to-pink-300/20'}`}></div>
+      <div className={`absolute inset-0 ${isDarkMode ? 'bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-pink-600/20' : 'bg-gradient-to-r from-blue-400/30 via-purple-400/30 to-pink-400/30'} animate-gradient`}></div>
       
       {/* Floating elements */}
-      <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-full blur-xl animate-pulse"></div>
-      <div className="absolute top-60 right-20 w-24 h-24 bg-gradient-to-r from-pink-400/20 to-red-400/20 rounded-full blur-xl animate-pulse delay-1000"></div>
-      <div className="absolute bottom-40 left-1/4 w-40 h-40 bg-gradient-to-r from-green-400/20 to-blue-400/20 rounded-full blur-xl animate-pulse delay-2000"></div>
+      <div className={`absolute top-20 left-10 w-32 h-32 ${isDarkMode ? 'bg-gradient-to-r from-blue-400/20 to-purple-400/20' : 'bg-gradient-to-r from-blue-300/30 to-purple-300/30'} rounded-full blur-xl animate-pulse`}></div>
+      <div className={`absolute top-60 right-20 w-24 h-24 ${isDarkMode ? 'bg-gradient-to-r from-pink-400/20 to-red-400/20' : 'bg-gradient-to-r from-pink-300/30 to-red-300/30'} rounded-full blur-xl animate-pulse delay-1000`}></div>
 
-      <Navigation title="Campaign Manager Dashboard" />
+      <Navigation title="Campaign Manager Dashboard">
+        <Button
+          onClick={toggleTheme}
+          variant="outline"
+          size="sm"
+          className={`flex items-center space-x-2 ${isDarkMode ? 'bg-gray-800/50 border-gray-600 text-white hover:bg-gray-700/50' : 'bg-white/50 border-gray-300 hover:bg-white/80'} backdrop-blur-sm transition-all duration-300`}
+        >
+          {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          <span>{isDarkMode ? 'Light' : 'Dark'} Mode</span>
+        </Button>
+      </Navigation>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative z-10">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 bg-white/10 backdrop-blur-sm border border-white/20">
-            <TabsTrigger value="interested" className="flex items-center space-x-2 data-[state=active]:bg-white/20 data-[state=active]:text-white">
+          <TabsList className={`grid w-full grid-cols-4 ${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm border transition-all duration-300`}>
+            <TabsTrigger value="interested" className={`flex items-center space-x-2 ${isDarkMode ? 'data-[state=active]:bg-gray-700/70 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800'}`}>
               <Users className="w-4 h-4" />
               <span>Interested</span>
             </TabsTrigger>
-            <TabsTrigger value="joined" className="flex items-center space-x-2 data-[state=active]:bg-white/20 data-[state=active]:text-white">
+            <TabsTrigger value="joined" className={`flex items-center space-x-2 ${isDarkMode ? 'data-[state=active]:bg-gray-700/70 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800'}`}>
               <UserCheck className="w-4 h-4" />
               <span>Joined</span>
             </TabsTrigger>
-            <TabsTrigger value="past" className="flex items-center space-x-2 data-[state=active]:bg-white/20 data-[state=active]:text-white">
+            <TabsTrigger value="past" className={`flex items-center space-x-2 ${isDarkMode ? 'data-[state=active]:bg-gray-700/70 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800'}`}>
               <History className="w-4 h-4" />
               <span>Past Volunteers</span>
             </TabsTrigger>
-            <TabsTrigger value="email-config" className="flex items-center space-x-2 data-[state=active]:bg-white/20 data-[state=active]:text-white">
+            <TabsTrigger value="email-config" className={`flex items-center space-x-2 ${isDarkMode ? 'data-[state=active]:bg-gray-700/70 data-[state=active]:text-white text-gray-300' : 'data-[state=active]:bg-blue-100 data-[state=active]:text-blue-800'}`}>
               <Settings className="w-4 h-4" />
               <span>Email Setup</span>
             </TabsTrigger>
@@ -581,10 +616,10 @@ const ManagerDashboard = () => {
 
           <TabsContent value="interested" className="space-y-6">
             {/* Recruitment Link Card */}
-            <Card className="mb-8 bg-gradient-to-r from-blue-600/90 to-purple-600/90 backdrop-blur-sm text-white border-0 shadow-2xl">
+            <Card className={`mb-8 ${isDarkMode ? 'bg-gradient-to-r from-blue-900/80 to-purple-900/80 border-gray-700 text-white' : 'bg-gradient-to-r from-blue-500/90 to-purple-500/90 text-white border-0'} backdrop-blur-sm shadow-2xl transition-all duration-300`}>
               <CardHeader>
                 <CardTitle className="text-white">🚀 Volunteer Recruitment Center</CardTitle>
-                <CardDescription className="text-blue-100">
+                <CardDescription className={`${isDarkMode ? 'text-blue-200' : 'text-blue-100'}`}>
                   Share this unique link to recruit volunteers for your campaigns and watch your team grow!
                 </CardDescription>
               </CardHeader>
@@ -593,7 +628,7 @@ const ManagerDashboard = () => {
                   <Input
                     value={recruitmentLink}
                     readOnly
-                    className="flex-1 bg-white/10 border-white/20 text-white placeholder-white/60"
+                    className={`flex-1 ${isDarkMode ? 'bg-gray-800/50 border-gray-600 text-white placeholder-gray-400' : 'bg-white/10 border-white/20 text-white placeholder-white/60'}`}
                   />
                   <Button onClick={copyRecruitmentLink} variant="secondary" className="shadow-lg">
                     <Copy className="w-4 h-4 mr-2" />
@@ -604,13 +639,13 @@ const ManagerDashboard = () => {
             </Card>
 
             {/* Bulk Recruitment Section */}
-            <Card className="bg-white/10 backdrop-blur-sm border border-white/20 shadow-xl">
+            <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700 text-white' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
               <CardHeader>
-                <CardTitle className="text-white flex items-center space-x-2">
+                <CardTitle className={`${isDarkMode ? 'text-white' : 'text-gray-900'} flex items-center space-x-2`}>
                   <Upload className="w-5 h-5" />
                   <span>Bulk Volunteer Recruitment</span>
                 </CardTitle>
-                <CardDescription className="text-blue-100">
+                <CardDescription className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   Import contact lists and send volunteer signup invitations in bulk
                 </CardDescription>
               </CardHeader>
@@ -626,24 +661,24 @@ const ManagerDashboard = () => {
                 ) : (
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="bulk-emails" className="text-white font-medium">Email Addresses (one per line)</Label>
+                      <Label htmlFor="bulk-emails" className={`${isDarkMode ? 'text-white' : 'text-gray-900'} font-medium`}>Email Addresses (one per line)</Label>
                       <Textarea
                         id="bulk-emails"
                         placeholder="volunteer1@email.com&#10;volunteer2@email.com&#10;volunteer3@email.com"
                         value={bulkEmails}
                         onChange={(e) => setBulkEmails(e.target.value)}
-                        className="mt-2 bg-white/10 border-white/20 text-white placeholder-white/60"
+                        className={`mt-2 ${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400' : 'bg-white/80 border-gray-300'}`}
                         rows={6}
                       />
                     </div>
                     <div>
-                      <Label htmlFor="bulk-message" className="text-white font-medium">Custom Message (Optional)</Label>
+                      <Label htmlFor="bulk-message" className={`${isDarkMode ? 'text-white' : 'text-gray-900'} font-medium`}>Custom Message (Optional)</Label>
                       <Textarea
                         id="bulk-message"
                         placeholder="Add a personal message to your recruitment email..."
                         value={bulkMessage}
                         onChange={(e) => setBulkMessage(e.target.value)}
-                        className="mt-2 bg-white/10 border-white/20 text-white placeholder-white/60"
+                        className={`mt-2 ${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white placeholder-gray-400' : 'bg-white/80 border-gray-300'}`}
                         rows={3}
                       />
                     </div>
@@ -658,7 +693,7 @@ const ManagerDashboard = () => {
                       <Button 
                         onClick={() => setShowBulkRecruit(false)}
                         variant="outline"
-                        className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+                        className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white hover:bg-gray-600/50' : 'bg-white/50 border-gray-300 hover:bg-white/80'}`}
                       >
                         Cancel
                       </Button>
@@ -670,52 +705,52 @@ const ManagerDashboard = () => {
 
             {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="bg-white/10 backdrop-blur-sm border border-white/20 shadow-xl">
+              <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
                 <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-white mb-2">
+                  <div className={`text-3xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     {filteredInterestedVolunteers.length}
                   </div>
-                  <div className="text-blue-100">Interested Volunteers</div>
+                  <div className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Interested Volunteers</div>
                 </CardContent>
               </Card>
-              <Card className="bg-white/10 backdrop-blur-sm border border-white/20 shadow-xl">
+              <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
                 <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-green-400 mb-2">
+                  <div className="text-3xl font-bold text-green-500 mb-2">
                     {Math.round((filteredJoinedVolunteers.length / (filteredInterestedVolunteers.length + filteredJoinedVolunteers.length)) * 100) || 0}%
                   </div>
-                  <div className="text-blue-100">Conversion Rate</div>
+                  <div className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Conversion Rate</div>
                 </CardContent>
               </Card>
-              <Card className="bg-white/10 backdrop-blur-sm border border-white/20 shadow-xl">
+              <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
                 <CardContent className="p-6 text-center">
-                  <div className="text-3xl font-bold text-purple-400 mb-2">
+                  <div className="text-3xl font-bold text-purple-500 mb-2">
                     {filteredInterestedVolunteers.length + filteredJoinedVolunteers.length}
                   </div>
-                  <div className="text-blue-100">Total Volunteers</div>
+                  <div className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Total Volunteers</div>
                 </CardContent>
               </Card>
             </div>
 
             {/* Enhanced Filters */}
-            <Card className="bg-white/10 backdrop-blur-sm border border-white/20 shadow-xl">
+            <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-white">
+                <CardTitle className={`flex items-center space-x-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   <Filter className="w-5 h-5" />
                   <span>Advanced Filters</span>
                 </CardTitle>
-                <CardDescription className="text-blue-100">
+                <CardDescription className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   Filter volunteers by rating, availability, and location to find the perfect match
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-white">Rating</Label>
+                    <Label className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Rating</Label>
                     <Select value={filterRating} onValueChange={setFilterRating}>
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                      <SelectTrigger className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white' : 'bg-white/80 border-gray-300'}`}>
                         <SelectValue placeholder="All ratings" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white">
+                      <SelectContent className={`${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white'}`}>
                         <SelectItem value="all">All ratings</SelectItem>
                         <SelectItem value="5">⭐ 4.8+ stars</SelectItem>
                         <SelectItem value="4">⭐ 4.0+ stars</SelectItem>
@@ -725,12 +760,12 @@ const ManagerDashboard = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label className="text-white">Available Shift</Label>
+                    <Label className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Available Shift</Label>
                     <Select value={filterShift} onValueChange={setFilterShift}>
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                      <SelectTrigger className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white' : 'bg-white/80 border-gray-300'}`}>
                         <SelectValue placeholder="All shifts" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white">
+                      <SelectContent className={`${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white'}`}>
                         <SelectItem value="all">All shifts</SelectItem>
                         <SelectItem value="morning">Morning</SelectItem>
                         <SelectItem value="afternoon">Afternoon</SelectItem>
@@ -740,12 +775,12 @@ const ManagerDashboard = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label className="text-white">Location</Label>
+                    <Label className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Location</Label>
                     <Select value={filterLocation} onValueChange={setFilterLocation}>
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                      <SelectTrigger className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white' : 'bg-white/80 border-gray-300'}`}>
                         <SelectValue placeholder="All locations" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white">
+                      <SelectContent className={`${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white'}`}>
                         <SelectItem value="all">All locations</SelectItem>
                         {allLocations.map(location => (
                           <SelectItem key={location} value={location}>{location}</SelectItem>
@@ -757,8 +792,8 @@ const ManagerDashboard = () => {
                 
                 <div className="flex justify-between items-center mt-4">
                   <div className="flex items-center space-x-2">
-                    <Eye className="w-4 h-4 text-blue-300" />
-                    <span className="text-sm text-blue-100">
+                    <Eye className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       Showing {filteredInterestedVolunteers.length} of {interestedVolunteers.length} volunteers
                     </span>
                   </div>
@@ -777,13 +812,13 @@ const ManagerDashboard = () => {
             </div>
 
             {filteredInterestedVolunteers.length === 0 && (
-              <Card className="bg-white/10 backdrop-blur-sm border border-white/20 shadow-xl">
+              <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
                 <CardContent className="text-center py-16">
                   <div className="text-6xl mb-4">👥</div>
-                  <h3 className="text-xl font-semibold text-white mb-2">
+                  <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     No volunteers found
                   </h3>
-                  <p className="text-blue-100 mb-6">
+                  <p className={`mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     {interestedVolunteers.length === 0 
                       ? "Share your recruitment link to start attracting volunteers!"
                       : "Try adjusting your filters to see more volunteers."
@@ -800,25 +835,25 @@ const ManagerDashboard = () => {
 
           <TabsContent value="joined" className="space-y-6">
             {/* Enhanced Filters for Joined Volunteers */}
-            <Card className="bg-white/10 backdrop-blur-sm border border-white/20 shadow-xl">
+            <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2 text-white">
+                <CardTitle className={`flex items-center space-x-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   <Filter className="w-5 h-5" />
                   <span>Filter Joined Volunteers</span>
                 </CardTitle>
-                <CardDescription className="text-blue-100">
+                <CardDescription className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   Manage and filter your active volunteer team
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-white">Rating</Label>
+                    <Label className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Rating</Label>
                     <Select value={filterRating} onValueChange={setFilterRating}>
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                      <SelectTrigger className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white' : 'bg-white/80 border-gray-300'}`}>
                         <SelectValue placeholder="All ratings" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white">
+                      <SelectContent className={`${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white'}`}>
                         <SelectItem value="all">All ratings</SelectItem>
                         <SelectItem value="5">⭐ 4.8+ stars</SelectItem>
                         <SelectItem value="4">⭐ 4.0+ stars</SelectItem>
@@ -828,12 +863,12 @@ const ManagerDashboard = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label className="text-white">Available Shift</Label>
+                    <Label className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Available Shift</Label>
                     <Select value={filterShift} onValueChange={setFilterShift}>
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                      <SelectTrigger className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white' : 'bg-white/80 border-gray-300'}`}>
                         <SelectValue placeholder="All shifts" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white">
+                      <SelectContent className={`${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white'}`}>
                         <SelectItem value="all">All shifts</SelectItem>
                         <SelectItem value="morning">Morning</SelectItem>
                         <SelectItem value="afternoon">Afternoon</SelectItem>
@@ -843,12 +878,12 @@ const ManagerDashboard = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label className="text-white">Location</Label>
+                    <Label className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Location</Label>
                     <Select value={filterLocation} onValueChange={setFilterLocation}>
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                      <SelectTrigger className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600 text-white' : 'bg-white/80 border-gray-300'}`}>
                         <SelectValue placeholder="All locations" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white">
+                      <SelectContent className={`${isDarkMode ? 'bg-gray-800 border-gray-700 text-white' : 'bg-white'}`}>
                         <SelectItem value="all">All locations</SelectItem>
                         {allLocations.map(location => (
                           <SelectItem key={location} value={location}>{location}</SelectItem>
@@ -860,8 +895,8 @@ const ManagerDashboard = () => {
                 
                 <div className="flex justify-between items-center mt-4">
                   <div className="flex items-center space-x-2">
-                    <Eye className="w-4 h-4 text-blue-300" />
-                    <span className="text-sm text-blue-100">
+                    <Eye className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       Showing {filteredJoinedVolunteers.length} of {joinedVolunteers.length} volunteers
                     </span>
                   </div>
@@ -880,13 +915,13 @@ const ManagerDashboard = () => {
             </div>
 
             {filteredJoinedVolunteers.length === 0 && (
-              <Card className="bg-white/10 backdrop-blur-sm border border-white/20 shadow-xl">
+              <Card className={`${isDarkMode ? 'bg-gray-800/70 border-gray-700' : 'bg-white/80 border-gray-200'} backdrop-blur-sm shadow-xl transition-all duration-300`}>
                 <CardContent className="text-center py-16">
                   <div className="text-6xl mb-4">🎉</div>
-                  <h3 className="text-xl font-semibold text-white mb-2">
+                  <h3 className={`text-xl font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     No joined volunteers found
                   </h3>
-                  <p className="text-blue-100 mb-6">
+                  <p className={`mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     {joinedVolunteers.length === 0 
                       ? "Approve interested volunteers to see them here."
                       : "Try adjusting your filters to see more volunteers."
